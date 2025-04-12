@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { 
@@ -20,9 +21,10 @@ interface PlatformStatus {
 
 interface SidebarProps {
   store: 'br' | 'us';
+  onCloseMobile?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ store }) => {
+const Sidebar: React.FC<SidebarProps> = ({ store, onCloseMobile }) => {
   const navigate = useNavigate();
   const [platformStatuses, setPlatformStatuses] = useState<PlatformStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -121,8 +123,14 @@ const Sidebar: React.FC<SidebarProps> = ({ store }) => {
     { icon: Settings, label: 'Cost Settings', path: `/${store}/cost-settings` }
   ];
 
+  const handleNavClick = () => {
+    if (onCloseMobile) {
+      onCloseMobile();
+    }
+  };
+
   return (
-    <div className="bg-gray-900 text-white w-64 min-h-screen px-4 py-6">
+    <div className="bg-gray-900 text-white w-64 h-full min-h-screen px-4 py-6">
       <div className="flex items-center mb-8 px-2">
         <img 
           src="https://cdn.shopify.com/s/files/1/0668/4396/7665/files/Logos_6ec5eb45-f5e0-437d-a920-52dfd5cb8ca7.webp?v=1742442431"
@@ -137,6 +145,7 @@ const Sidebar: React.FC<SidebarProps> = ({ store }) => {
           <NavLink
             key={item.path}
             to={item.path}
+            onClick={handleNavClick}
             className={({ isActive }) =>
               `flex items-center px-4 py-3 rounded-lg transition-colors ${
                 isActive
@@ -154,7 +163,10 @@ const Sidebar: React.FC<SidebarProps> = ({ store }) => {
         ))}
 
         <button
-          onClick={() => navigate('/')}
+          onClick={() => {
+            navigate('/');
+            if (onCloseMobile) onCloseMobile();
+          }}
           className="w-full flex items-center px-4 py-3 mt-4 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
         >
           <LogOut className="w-5 h-5 mr-3" />

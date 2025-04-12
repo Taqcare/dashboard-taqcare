@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { CreditCard, DollarSign, ArrowUpRight, ArrowDownRight } from 'lucide-react';
 import type { Wallet } from '../types';
@@ -9,29 +10,29 @@ const Wallets = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-semibold text-gray-900">Wallets</h1>
-        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
+    <div className="space-y-6 p-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <h1 className="text-xl sm:text-2xl font-semibold text-gray-900">Wallets</h1>
+        <button className="w-full sm:w-auto bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
           Create Wallet
         </button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:gap-6">
         {wallets.map((wallet) => (
-          <div key={wallet.wallet_id} className="bg-white rounded-lg shadow p-6">
+          <div key={wallet.wallet_id} className="bg-white rounded-lg shadow p-4 sm:p-6">
             <div className="flex items-center justify-between mb-4">
-              <div className="bg-blue-100 p-3 rounded-lg">
-                <CreditCard className="h-6 w-6 text-blue-600" />
+              <div className="bg-blue-100 p-2 sm:p-3 rounded-lg">
+                <CreditCard className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
               </div>
-              <span className="text-sm font-medium text-gray-500">
+              <span className="text-xs sm:text-sm font-medium text-gray-500">
                 ID: {wallet.wallet_id}
               </span>
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Balance</span>
-                <span className="text-lg font-semibold text-gray-900">
+                <span className="text-base sm:text-lg font-semibold text-gray-900">
                   ${wallet.balance.toFixed(2)}
                 </span>
               </div>

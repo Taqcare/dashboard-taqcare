@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
@@ -8,8 +9,15 @@ import CostSettings from './pages/CostSettings';
 import Webhooks from './pages/Webhooks';
 import Employees from './pages/Employees';
 import StoreSelection from './pages/StoreSelection';
+import { Menu, X } from 'lucide-react';
 
 function App() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
   return (
     <Router>
       <Routes>
@@ -19,10 +27,26 @@ function App() {
         <Route
           path="/br/*"
           element={
-            <div className="flex h-screen bg-gray-100">
-              <Sidebar store="br" />
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+            <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+              {/* Mobile menu button */}
+              <button
+                className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-lg shadow"
+                onClick={toggleSidebar}
+              >
+                {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+              
+              {/* Sidebar - hidden on mobile, visible when toggled or on desktop */}
+              <div 
+                className={`${
+                  sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                } fixed inset-y-0 left-0 transform md:relative md:translate-x-0 z-40 transition duration-200 ease-in-out`}
+              >
+                <Sidebar store="br" onCloseMobile={() => setSidebarOpen(false)} />
+              </div>
+
+              <div className="flex-1 flex flex-col overflow-hidden w-full">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 pt-16 md:pt-0">
                   <Routes>
                     <Route path="/" element={<Dashboard store="br" />} />
                     <Route path="/wallets" element={<Wallets />} />
@@ -41,10 +65,26 @@ function App() {
         <Route
           path="/us/*"
           element={
-            <div className="flex h-screen bg-gray-100">
-              <Sidebar store="us" />
-              <div className="flex-1 flex flex-col overflow-hidden">
-                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+            <div className="flex flex-col md:flex-row h-screen bg-gray-100">
+              {/* Mobile menu button */}
+              <button
+                className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-lg shadow"
+                onClick={toggleSidebar}
+              >
+                {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+              
+              {/* Sidebar - hidden on mobile, visible when toggled or on desktop */}
+              <div 
+                className={`${
+                  sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+                } fixed inset-y-0 left-0 transform md:relative md:translate-x-0 z-40 transition duration-200 ease-in-out`}
+              >
+                <Sidebar store="us" onCloseMobile={() => setSidebarOpen(false)} />
+              </div>
+
+              <div className="flex-1 flex flex-col overflow-hidden w-full">
+                <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 pt-16 md:pt-0">
                   <Routes>
                     <Route path="/" element={<Dashboard store="us" />} />
                     <Route path="/wallets" element={<Wallets />} />
