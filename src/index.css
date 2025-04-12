@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Base colors */
+  --primary-100: #e0edff;
+  --primary-500: #2281fb;
+  --primary-600: #0c70f2;
+  --green-color: #23ac6a;
+  --tw-logo-color: #1877f2;
+
+  /* Chart gradient colors */
+  --chart-gradient-start: #10F1A7;
+  --chart-gradient-end: #1877F2;
+
+  /* Card styles */
+  --card-background: white;
+  --card-border: 1px solid transparent;
+  --card-shadow: 0px 0px 8px rgba(0, 0, 0, 0.08);
+  --card-hover-shadow: 0px 4px 12px rgba(0, 0, 0, 0.12);
+  
+  /* Text colors */
+  --text-primary: #1f2737;
+  --text-secondary: #6b7280;
+}
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-[var(--text-primary)];
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+}
+
+@layer components {
+  .metric-card {
+    @apply relative flex flex-col min-w-[250px] flex-auto rounded-[10px] transition-all duration-200 cursor-pointer;
+    background: var(--card-background);
+    border: var(--card-border);
+    box-shadow: var(--card-shadow);
+    touch-action: manipulation;
+  }
+
+  .metric-card:hover {
+    box-shadow: var(--card-hover-shadow);
+  }
+
+  .metric-value {
+    @apply font-semibold leading-tight;
+    font-size: 1.625rem;
+    color: var(--text-primary);
+  }
+
+  .metric-title {
+    @apply font-medium;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+
+  .section-title {
+    @apply font-semibold text-gray-900;
+    font-size: 1.172rem;
+  }
+
+  .chart-container {
+    @apply h-[60px] mt-4;
+  }
+
+  .chart-gradient {
+    --gradient-start: var(--chart-gradient-start);
+    --gradient-end: var(--chart-gradient-end);
+  }
+}
