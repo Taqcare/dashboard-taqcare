@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { 
   User, 
@@ -166,9 +167,9 @@ const Employees = () => {
   };
 
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Employees & Service Providers</h1>
+    <div className="p-3 md:p-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-3">
+        <h1 className="text-xl md:text-2xl font-semibold text-gray-900">Employees & Service Providers</h1>
         <button
           onClick={() => {
             setEditingEmployee({
@@ -185,19 +186,19 @@ const Employees = () => {
             });
             setShowModal(true);
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full md:w-auto justify-center md:justify-start"
         >
           <Plus className="h-5 w-5" />
           Add New
         </button>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-4 md:gap-6">
         {employees.map((employee) => (
-          <div key={employee.id} className="bg-white rounded-lg shadow-sm p-6">
-            <div className="flex items-start justify-between">
+          <div key={employee.id} className="bg-white rounded-lg shadow-sm p-4 md:p-6">
+            <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
               <div className="flex items-start gap-4">
-                <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center">
+                <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center shrink-0">
                   {employee.type === 'employee' ? (
                     <User className="h-6 w-6 text-gray-600" />
                   ) : (
@@ -206,7 +207,7 @@ const Employees = () => {
                 </div>
                 <div>
                   <h2 className="text-lg font-medium text-gray-900">{employee.name}</h2>
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
                     <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(employee.status)}`}>
                       {employee.status.charAt(0).toUpperCase() + employee.status.slice(1)}
                     </span>
@@ -216,7 +217,7 @@ const Employees = () => {
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 mt-2 md:mt-0 self-end md:self-auto">
                 {isPaymentDue(employee) ? (
                   <button 
                     onClick={() => handlePayment(employee.id)}
@@ -246,25 +247,25 @@ const Employees = () => {
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols-2 gap-6">
-              <div className="space-y-4">
+            <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="space-y-3 md:space-y-4">
                 <div className="flex items-center gap-2 text-sm">
-                  <Briefcase className="h-4 w-4 text-gray-400" />
+                  <Briefcase className="h-4 w-4 text-gray-400 shrink-0" />
                   <span className="text-gray-600">Role:</span>
                   <span className="font-medium text-gray-900">{employee.role}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <DollarSign className="h-4 w-4 text-gray-400" />
+                  <DollarSign className="h-4 w-4 text-gray-400 shrink-0" />
                   <span className="text-gray-600">Monthly Payment:</span>
                   <span className="font-medium text-gray-900">{formatCurrency(employee.salary)}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-gray-400" />
+                  <Calendar className="h-4 w-4 text-gray-400 shrink-0" />
                   <span className="text-gray-600">Payment Day:</span>
                   <span className="font-medium text-gray-900">Day {employee.paymentDay}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <Receipt className="h-4 w-4 text-gray-400" />
+                  <Receipt className="h-4 w-4 text-gray-400 shrink-0" />
                   <span className="text-gray-600">Last Payment:</span>
                   <span className="font-medium text-gray-900">
                     {employee.lastPayment ? formatDate(employee.lastPayment) : 'Not paid yet'}
@@ -272,24 +273,24 @@ const Employees = () => {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 <div className="flex items-center gap-2 text-sm">
-                  <Mail className="h-4 w-4 text-gray-400" />
+                  <Mail className="h-4 w-4 text-gray-400 shrink-0" />
                   <span className="text-gray-600">Email:</span>
-                  <span className="font-medium text-gray-900">{employee.email}</span>
+                  <span className="font-medium text-gray-900 break-all">{employee.email}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <Phone className="h-4 w-4 text-gray-400" />
+                  <Phone className="h-4 w-4 text-gray-400 shrink-0" />
                   <span className="text-gray-600">Phone:</span>
                   <span className="font-medium text-gray-900">{employee.phone}</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm">
-                  <MapPin className="h-4 w-4 text-gray-400" />
+                <div className="flex items-start gap-2 text-sm">
+                  <MapPin className="h-4 w-4 text-gray-400 shrink-0 mt-0.5" />
                   <span className="text-gray-600">Address:</span>
                   <span className="font-medium text-gray-900">{employee.address}</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-gray-400" />
+                  <Calendar className="h-4 w-4 text-gray-400 shrink-0" />
                   <span className="text-gray-600">Start Date:</span>
                   <span className="font-medium text-gray-900">{formatDate(employee.startDate)}</span>
                 </div>
@@ -299,15 +300,15 @@ const Employees = () => {
             {employee.type === 'company' && employee.companyDetails && (
               <div className="mt-6 pt-6 border-t border-gray-100">
                 <h3 className="text-sm font-medium text-gray-900 mb-4">Company Details</h3>
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                  <div className="space-y-3 md:space-y-4">
                     <div className="flex items-center gap-2 text-sm">
-                      <Building2 className="h-4 w-4 text-gray-400" />
+                      <Building2 className="h-4 w-4 text-gray-400 shrink-0" />
                       <span className="text-gray-600">Company Name:</span>
                       <span className="font-medium text-gray-900">{employee.companyDetails.companyName}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <Receipt className="h-4 w-4 text-gray-400" />
+                      <Receipt className="h-4 w-4 text-gray-400 shrink-0" />
                       <span className="text-gray-600">CNPJ:</span>
                       <span className="font-medium text-gray-900">{employee.companyDetails.cnpj}</span>
                     </div>
@@ -323,8 +324,8 @@ const Employees = () => {
             )}
 
             {isPaymentDue(employee) && (
-              <div className="mt-6 p-4 bg-yellow-50 rounded-lg flex items-center gap-2 text-yellow-800">
-                <AlertCircle className="h-5 w-5" />
+              <div className="mt-6 p-3 md:p-4 bg-yellow-50 rounded-lg flex items-start md:items-center gap-2 text-yellow-800 text-sm">
+                <AlertCircle className="h-5 w-5 shrink-0 mt-0.5 md:mt-0" />
                 <span>Payment is due! Next payment date: Day {employee.paymentDay}</span>
               </div>
             )}
@@ -333,8 +334,8 @@ const Employees = () => {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg p-4 md:p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold">
                 {editingEmployee?.id ? 'Edit' : 'Add New'} {selectedType === 'employee' ? 'Employee' : 'Service Provider'}
@@ -351,11 +352,11 @@ const Employees = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="flex gap-4 mb-4">
+              <div className="flex gap-2 md:gap-4 mb-4">
                 <button
                   type="button"
                   onClick={() => setSelectedType('employee')}
-                  className={`flex-1 py-2 px-4 rounded-lg ${
+                  className={`flex-1 py-2 px-3 md:px-4 rounded-lg text-sm md:text-base ${
                     selectedType === 'employee'
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-600'
@@ -366,7 +367,7 @@ const Employees = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedType('company')}
-                  className={`flex-1 py-2 px-4 rounded-lg ${
+                  className={`flex-1 py-2 px-3 md:px-4 rounded-lg text-sm md:text-base ${
                     selectedType === 'company'
                       ? 'bg-blue-600 text-white'
                       : 'bg-gray-100 text-gray-600'
@@ -376,7 +377,7 @@ const Employees = () => {
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     {selectedType === 'company' ? 'Company Name' : 'Full Name'}
@@ -457,7 +458,7 @@ const Employees = () => {
                   />
                 </div>
 
-                <div className="col-span-2">
+                <div className="col-span-1 md:col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Address
                   </label>
@@ -491,7 +492,7 @@ const Employees = () => {
                       />
                     </div>
 
-                    <div className="col-span-2">
+                    <div className="col-span-1 md:col-span-2">
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         Service Description
                       </label>
@@ -513,20 +514,20 @@ const Employees = () => {
                 )}
               </div>
 
-              <div className="flex justify-end gap-2 mt-6">
+              <div className="flex flex-col md:flex-row md:justify-end gap-3 md:gap-2 mt-6">
                 <button
                   type="button"
                   onClick={() => {
                     setShowModal(false);
                     setEditingEmployee(null);
                   }}
-                  className="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg"
+                  className="px-4 py-2 text-gray-600 hover:bg-gray-50 rounded-lg w-full md:w-auto"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 w-full md:w-auto"
                 >
                   {editingEmployee?.id ? 'Save Changes' : 'Add Employee'}
                 </button>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Package, Truck, ChevronDown, Plus, Receipt, Ban as Bank, Search, RefreshCw, Save, ImageOff, Percent } from 'lucide-react';
 import { fetchProducts, fetchShippingRates, type ShopifyProduct, type ShippingRate } from '../services/shopify';
@@ -236,158 +237,163 @@ const CostSettings = () => {
   );
 
   return (
-    <div className="p-6">
+    <div className="p-3 md:p-6">
       <h1 className="section-title mb-6">Cost Settings</h1>
       
       {/* Cost of Goods Section */}
-      <div className="bg-white rounded-[10px] shadow-sm mb-6">
+      <div className="bg-white rounded-[10px] shadow-sm mb-4 md:mb-6">
         <button
-          className="w-full px-6 py-4 flex items-center justify-between text-left"
+          className="w-full px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between text-left"
           onClick={() => setCogsExpanded(!cogsExpanded)}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mb-3 md:mb-0">
             <Package className="h-5 w-5 text-gray-500" />
             <span className="font-medium text-gray-900">Cost of Goods</span>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="relative">
+          <div className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4">
+            <div className="relative w-full md:w-auto">
               <Search className="absolute left-3 top-2.5 h-5 w-5 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full md:w-auto pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                onClick={(e) => e.stopPropagation()}
               />
             </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                loadProducts();
-              }}
-              className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50"
-              disabled={loading}
-            >
-              <RefreshCw className={`h-5 w-5 text-gray-600 ${loading ? 'animate-spin' : ''}`} />
-            </button>
-            <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform ${cogsExpanded ? 'rotate-180' : ''}`} />
+            <div className="flex items-center gap-2">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  loadProducts();
+                }}
+                className="p-2 rounded-lg border border-gray-200 hover:bg-gray-50"
+                disabled={loading}
+              >
+                <RefreshCw className={`h-5 w-5 text-gray-600 ${loading ? 'animate-spin' : ''}`} />
+              </button>
+              <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform ${cogsExpanded ? 'rotate-180' : ''}`} />
+            </div>
           </div>
         </button>
 
         {cogsExpanded && (
-          <div className="px-6 pb-6">
+          <div className="px-4 md:px-6 pb-4 md:pb-6">
             <div className="border-t border-gray-100 pt-4">
               {error && (
-                <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg">
+                <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg text-sm">
                   {error}
                 </div>
               )}
               
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead>
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Image
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Title
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Price
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Product Cost
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Profit
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Margin
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {loading ? (
+              <div className="overflow-x-auto -mx-4 md:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead>
                       <tr>
-                        <td colSpan={7} className="px-4 py-4 text-center text-gray-500">
-                          Loading products...
-                        </td>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Image
+                        </th>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Title
+                        </th>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Price
+                        </th>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Cost
+                        </th>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Profit
+                        </th>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Margin
+                        </th>
+                        <th className="px-3 md:px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
                       </tr>
-                    ) : filteredProducts.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="px-4 py-4 text-center text-gray-500">
-                          No products found
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredProducts.map((product) => {
-                        const price = parseFloat(product.price);
-                        const cost = productCosts[product.id] || 0;
-                        const profit = calculateProfit(price, cost);
-                        const margin = calculateProfitMargin(price, cost);
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {loading ? (
+                        <tr>
+                          <td colSpan={7} className="px-3 md:px-4 py-4 text-center text-gray-500">
+                            Loading products...
+                          </td>
+                        </tr>
+                      ) : filteredProducts.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="px-3 md:px-4 py-4 text-center text-gray-500">
+                            No products found
+                          </td>
+                        </tr>
+                      ) : (
+                        filteredProducts.map((product) => {
+                          const price = parseFloat(product.price);
+                          const cost = productCosts[product.id] || 0;
+                          const profit = calculateProfit(price, cost);
+                          const margin = calculateProfitMargin(price, cost);
 
-                        return (
-                          <tr key={product.id}>
-                            <td className="px-4 py-4 w-20">
-                              {product.image ? (
-                                <img
-                                  src={product.image}
-                                  alt={product.title}
-                                  className="h-16 w-16 object-cover rounded-lg"
-                                />
-                              ) : (
-                                <div className="h-16 w-16 bg-gray-100 rounded-lg flex items-center justify-center">
-                                  <ImageOff className="h-6 w-6 text-gray-400" />
+                          return (
+                            <tr key={product.id}>
+                              <td className="px-3 md:px-4 py-3 w-16 md:w-20">
+                                {product.image ? (
+                                  <img
+                                    src={product.image}
+                                    alt={product.title}
+                                    className="h-12 w-12 md:h-16 md:w-16 object-cover rounded-lg"
+                                  />
+                                ) : (
+                                  <div className="h-12 w-12 md:h-16 md:w-16 bg-gray-100 rounded-lg flex items-center justify-center">
+                                    <ImageOff className="h-5 w-5 md:h-6 md:w-6 text-gray-400" />
+                                  </div>
+                                )}
+                              </td>
+                              <td className="px-3 md:px-4 py-3 text-xs md:text-sm text-gray-900 max-w-[150px] truncate">
+                                {product.title}
+                              </td>
+                              <td className="px-3 md:px-4 py-3 text-xs md:text-sm text-gray-900 whitespace-nowrap">
+                                R$ {price.toFixed(2)}
+                              </td>
+                              <td className="px-3 md:px-4 py-3">
+                                <div className="relative w-24 md:w-32">
+                                  <span className="absolute left-2 md:left-3 top-2 text-gray-500">R$</span>
+                                  <input
+                                    type="number"
+                                    value={productCosts[product.id] || ''}
+                                    onChange={(e) => handleProductCostChange(product.id, e.target.value)}
+                                    className="w-full pl-7 md:pl-8 pr-2 md:pr-3 py-2 text-xs md:text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="0.00"
+                                    step="0.01"
+                                  />
                                 </div>
-                              )}
-                            </td>
-                            <td className="px-4 py-4 text-sm text-gray-900">
-                              {product.title}
-                            </td>
-                            <td className="px-4 py-4 text-sm text-gray-900">
-                              R$ {price.toFixed(2)}
-                            </td>
-                            <td className="px-4 py-4">
-                              <div className="relative w-32">
-                                <span className="absolute left-3 top-2 text-gray-500">R$</span>
-                                <input
-                                  type="number"
-                                  value={productCosts[product.id] || ''}
-                                  onChange={(e) => handleProductCostChange(product.id, e.target.value)}
-                                  className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  placeholder="0.00"
-                                  step="0.01"
-                                />
-                              </div>
-                            </td>
-                            <td className={`px-4 py-4 text-sm font-medium ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              R$ {profit.toFixed(2)}
-                            </td>
-                            <td className={`px-4 py-4 text-sm font-medium ${margin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              {margin.toFixed(2)}%
-                            </td>
-                            <td className="px-4 py-4 text-right">
-                              {unsavedChanges[`product-${product.id}`] && (
-                                <button
-                                  onClick={() => handleSaveProductCost(product.id)}
-                                  disabled={saving}
-                                  className="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50"
-                                >
-                                  <Save className="h-4 w-4 mr-1" />
-                                  Save
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
+                              </td>
+                              <td className={`px-3 md:px-4 py-3 text-xs md:text-sm font-medium ${profit >= 0 ? 'text-green-600' : 'text-red-600'} whitespace-nowrap`}>
+                                R$ {profit.toFixed(2)}
+                              </td>
+                              <td className={`px-3 md:px-4 py-3 text-xs md:text-sm font-medium ${margin >= 0 ? 'text-green-600' : 'text-red-600'} whitespace-nowrap`}>
+                                {margin.toFixed(1)}%
+                              </td>
+                              <td className="px-3 md:px-4 py-3 text-right">
+                                {unsavedChanges[`product-${product.id}`] && (
+                                  <button
+                                    onClick={() => handleSaveProductCost(product.id)}
+                                    disabled={saving}
+                                    className="inline-flex items-center px-2 md:px-3 py-1 bg-blue-600 text-white text-xs md:text-sm rounded hover:bg-blue-700 disabled:opacity-50"
+                                  >
+                                    <Save className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                                    Save
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -395,125 +401,129 @@ const CostSettings = () => {
       </div>
 
       {/* Shipping Section */}
-      <div className="bg-white rounded-[10px] shadow-sm mb-6">
+      <div className="bg-white rounded-[10px] shadow-sm mb-4 md:mb-6">
         <button
-          className="w-full px-6 py-4 flex items-center justify-between text-left"
+          className="w-full px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between text-left"
           onClick={() => setShippingExpanded(!shippingExpanded)}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 mb-2 md:mb-0">
             <Truck className="h-5 w-5 text-gray-500" />
             <span className="font-medium text-gray-900">Shipping</span>
-            <span className="text-sm text-gray-500">
+          </div>
+          <div className="flex items-center justify-between md:justify-start gap-2">
+            <span className="text-xs md:text-sm text-gray-500">
               Processing Location: PRC China
             </span>
+            <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform ${shippingExpanded ? 'rotate-180' : ''}`} />
           </div>
-          <ChevronDown className={`h-5 w-5 text-gray-500 transition-transform ${shippingExpanded ? 'rotate-180' : ''}`} />
         </button>
 
         {shippingExpanded && (
-          <div className="px-6 pb-6">
+          <div className="px-4 md:px-6 pb-4 md:pb-6">
             <div className="border-t border-gray-100 pt-4">
               {shippingError && (
-                <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg">
+                <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg text-sm">
                   {shippingError}
                 </div>
               )}
               
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200">
-                  <thead>
-                    <tr>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Name
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Description
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Price
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Shipping Cost
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Profit
-                      </th>
-                      <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Margin
-                      </th>
-                      <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {shippingLoading ? (
+              <div className="overflow-x-auto -mx-4 md:mx-0">
+                <div className="inline-block min-w-full align-middle">
+                  <table className="min-w-full divide-y divide-gray-200">
+                    <thead>
                       <tr>
-                        <td colSpan={7} className="px-4 py-4 text-center text-gray-500">
-                          Loading shipping rates...
-                        </td>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Name
+                        </th>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Description
+                        </th>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Price
+                        </th>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Cost
+                        </th>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Profit
+                        </th>
+                        <th className="px-3 md:px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Margin
+                        </th>
+                        <th className="px-3 md:px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Actions
+                        </th>
                       </tr>
-                    ) : shippingRates.length === 0 ? (
-                      <tr>
-                        <td colSpan={7} className="px-4 py-4 text-center text-gray-500">
-                          No shipping rates found
-                        </td>
-                      </tr>
-                    ) : (
-                      shippingRates.map((rate) => {
-                        const price = parseFloat(rate.price);
-                        const cost = shippingCosts[rate.id] || 0;
-                        const profit = calculateProfit(price, cost);
-                        const margin = calculateProfitMargin(price, cost);
+                    </thead>
+                    <tbody className="bg-white divide-y divide-gray-200">
+                      {shippingLoading ? (
+                        <tr>
+                          <td colSpan={7} className="px-3 md:px-4 py-4 text-center text-gray-500">
+                            Loading shipping rates...
+                          </td>
+                        </tr>
+                      ) : shippingRates.length === 0 ? (
+                        <tr>
+                          <td colSpan={7} className="px-3 md:px-4 py-4 text-center text-gray-500">
+                            No shipping rates found
+                          </td>
+                        </tr>
+                      ) : (
+                        shippingRates.map((rate) => {
+                          const price = parseFloat(rate.price);
+                          const cost = shippingCosts[rate.id] || 0;
+                          const profit = calculateProfit(price, cost);
+                          const margin = calculateProfitMargin(price, cost);
 
-                        return (
-                          <tr key={rate.id}>
-                            <td className="px-4 py-4 text-sm text-gray-900">
-                              {rate.name}
-                            </td>
-                            <td className="px-4 py-4 text-sm text-gray-600">
-                              {rate.description}
-                            </td>
-                            <td className="px-4 py-4 text-sm text-gray-900">
-                              {price === 0 ? 'Grátis' : `R$ ${price.toFixed(2)}`}
-                            </td>
-                            <td className="px-4 py-4">
-                              <div className="relative w-32">
-                                <span className="absolute left-3 top-2 text-gray-500">R$</span>
-                                <input
-                                  type="number"
-                                  value={shippingCosts[rate.id] || ''}
-                                  onChange={(e) => handleShippingCostChange(rate.id, e.target.value)}
-                                  className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                  placeholder="0.00"
-                                  step="0.01"
-                                />
-                              </div>
-                            </td>
-                            <td className={`px-4 py-4 text-sm font-medium ${profit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              R$ {profit.toFixed(2)}
-                            </td>
-                            <td className={`px-4 py-4 text-sm font-medium ${margin >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                              {margin.toFixed(2)}%
-                            </td>
-                            <td className="px-4 py-4 text-right">
-                              {unsavedChanges[`shipping-${rate.id}`] && (
-                                <button
-                                  onClick={() => handleSaveShippingCost(rate.id)}
-                                  disabled={saving}
-                                  className="inline-flex items-center px-3 py-1 bg-blue-600 text-white text-sm rounded hover:bg-blue-700 disabled:opacity-50"
-                                >
-                                  <Save className="h-4 w-4 mr-1" />
-                                  Save
-                                </button>
-                              )}
-                            </td>
-                          </tr>
-                        );
-                      })
-                    )}
-                  </tbody>
-                </table>
+                          return (
+                            <tr key={rate.id}>
+                              <td className="px-3 md:px-4 py-3 text-xs md:text-sm text-gray-900">
+                                {rate.name}
+                              </td>
+                              <td className="px-3 md:px-4 py-3 text-xs md:text-sm text-gray-600 max-w-[100px] md:max-w-none truncate md:whitespace-normal">
+                                {rate.description}
+                              </td>
+                              <td className="px-3 md:px-4 py-3 text-xs md:text-sm text-gray-900 whitespace-nowrap">
+                                {price === 0 ? 'Grátis' : `R$ ${price.toFixed(2)}`}
+                              </td>
+                              <td className="px-3 md:px-4 py-3">
+                                <div className="relative w-24 md:w-32">
+                                  <span className="absolute left-2 md:left-3 top-2 text-gray-500">R$</span>
+                                  <input
+                                    type="number"
+                                    value={shippingCosts[rate.id] || ''}
+                                    onChange={(e) => handleShippingCostChange(rate.id, e.target.value)}
+                                    className="w-full pl-7 md:pl-8 pr-2 md:pr-3 py-2 text-xs md:text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    placeholder="0.00"
+                                    step="0.01"
+                                  />
+                                </div>
+                              </td>
+                              <td className={`px-3 md:px-4 py-3 text-xs md:text-sm font-medium ${profit >= 0 ? 'text-green-600' : 'text-red-600'} whitespace-nowrap`}>
+                                R$ {profit.toFixed(2)}
+                              </td>
+                              <td className={`px-3 md:px-4 py-3 text-xs md:text-sm font-medium ${margin >= 0 ? 'text-green-600' : 'text-red-600'} whitespace-nowrap`}>
+                                {margin.toFixed(1)}%
+                              </td>
+                              <td className="px-3 md:px-4 py-3 text-right">
+                                {unsavedChanges[`shipping-${rate.id}`] && (
+                                  <button
+                                    onClick={() => handleSaveShippingCost(rate.id)}
+                                    disabled={saving}
+                                    className="inline-flex items-center px-2 md:px-3 py-1 bg-blue-600 text-white text-xs md:text-sm rounded hover:bg-blue-700 disabled:opacity-50"
+                                  >
+                                    <Save className="h-3 w-3 md:h-4 md:w-4 mr-1" />
+                                    Save
+                                  </button>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
@@ -521,9 +531,9 @@ const CostSettings = () => {
       </div>
 
       {/* PRC Taxes Section */}
-      <div className="bg-white rounded-[10px] shadow-sm mb-6">
+      <div className="bg-white rounded-[10px] shadow-sm mb-4 md:mb-6">
         <button
-          className="w-full px-6 py-4 flex items-center justify-between text-left"
+          className="w-full px-4 md:px-6 py-4 flex items-center justify-between text-left"
           onClick={() => setPrcTaxesExpanded(!prcTaxesExpanded)}
         >
           <div className="flex items-center gap-3">
@@ -534,24 +544,24 @@ const CostSettings = () => {
         </button>
 
         {prcTaxesExpanded && (
-          <div className="px-6 pb-6">
+          <div className="px-4 md:px-6 pb-4 md:pb-6">
             <div className="border-t border-gray-100 pt-4">
               {prcTaxes.map((tax, index) => (
-                <div key={tax.id} className="flex items-center gap-4 mb-4">
+                <div key={tax.id} className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4 mb-4">
                   <input
                     type="text"
                     value={tax.name}
-                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                     placeholder="Name"
                     readOnly
                   />
-                  <div className="relative w-48">
+                  <div className="relative w-full md:w-48">
                     <span className="absolute left-3 top-2 text-gray-500">R$</span>
                     <input
                       type="number"
                       value={tax.value}
                       onChange={(e) => handlePrcTaxChange(index, e.target.value)}
-                      className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       placeholder="0.00"
                       step="0.01"
                     />
@@ -576,9 +586,9 @@ const CostSettings = () => {
       </div>
 
       {/* Taxes + IOF Section */}
-      <div className="bg-white rounded-[10px] shadow-sm mb-6">
+      <div className="bg-white rounded-[10px] shadow-sm mb-4 md:mb-6">
         <button
-          className="w-full px-6 py-4 flex items-center justify-between text-left"
+          className="w-full px-4 md:px-6 py-4 flex items-center justify-between text-left"
           onClick={() => setTaxesIofExpanded(!taxesIofExpanded)}
         >
           <div className="flex items-center gap-3">
@@ -589,25 +599,25 @@ const CostSettings = () => {
         </button>
 
         {taxesIofExpanded && (
-          <div className="px-6 pb-6">
+          <div className="px-4 md:px-6 pb-4 md:pb-6">
             <div className="border-t border-gray-100 pt-4">
               {taxesIof.map((tax, index) => (
                 <div key={tax.id} className="space-y-4">
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
                     <input
                       type="text"
                       value={tax.name}
-                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="flex-1 px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                       placeholder="Name"
                       readOnly
                     />
-                    <div className="relative w-48">
+                    <div className="relative w-full md:w-48">
                       <span className="absolute left-3 top-2 text-gray-500"><Percent className="h-4 w-4" /></span>
                       <input
                         type="number"
                         value={tax.value}
                         onChange={(e) => handleTaxesIofChange(index, e.target.value)}
-                        className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full pl-8 pr-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
                         placeholder="0.00"
                         step="0.01"
                       />
@@ -615,13 +625,13 @@ const CostSettings = () => {
                   </div>
                   
                   {/* Example calculation */}
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h3 className="text-sm font-medium text-gray-700 mb-2">Example Calculation</h3>
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1">
-                        <span className="text-sm text-gray-600">Order Value: R$ 679,00</span>
+                  <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
+                    <h3 className="text-xs md:text-sm font-medium text-gray-700 mb-2">Example Calculation</h3>
+                    <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                      <div className="md:flex-1">
+                        <span className="text-xs md:text-sm text-gray-600">Order Value: R$ 679,00</span>
                       </div>
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-xs md:text-sm font-medium text-gray-900">
                         Tax Amount: R$ {calculateTaxExample(679).toFixed(2)}
                       </div>
                     </div>
