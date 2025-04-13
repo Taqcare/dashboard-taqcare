@@ -1,3 +1,4 @@
+
 import useSWR from 'swr';
 import { fetchShopifyMetrics, ShopifyMetrics } from '../services/shopify';
 import { startOfDay, endOfDay, subDays, startOfMonth, endOfMonth, startOfYear, endOfYear, parse, format } from 'date-fns';
@@ -77,8 +78,8 @@ export const useShopifyMetrics = (timeframe: string) => {
       revalidateOnFocus: false,
       revalidateOnReconnect: false,
       dedupingInterval: 30000,
-      shouldRetryOnError: true,
-      errorRetryCount: 3,
+      shouldRetryOnError: false, // Change to false to prevent endless retries
+      errorRetryCount: 1, // Reduce retry count
       onError: (err) => {
         console.error('SWR Error:', err);
       }
