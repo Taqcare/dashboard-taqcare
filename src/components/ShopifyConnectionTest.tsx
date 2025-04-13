@@ -7,32 +7,29 @@ const ShopifyConnectionTest = () => {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  // Determine if we're in development or production
-  const isDev = window.location.hostname === 'localhost' || 
-                window.location.hostname.includes('lovableproject.com');
-
   const testConnection = async () => {
     setStatus('loading');
     setErrorMessage('');
 
     try {
-      let response;
+      // Determinar a base URL conforme o ambiente
+      const baseUrl = window.location.hostname === 'localhost' || window.location.hostname.includes('lovableproject.com')
+        ? '/admin/api/2024-01/shop.json'
+        : `https://${import.meta.env.VITE_SHOPIFY_STORE_URL}/admin/api/2024-01/shop.json`;
       
-      if (isDev) {
-        // In development, use the proxy
-        response = await axios.get('/admin/api/2024-01/shop.json', {
-          timeout: 10000
-        });
-      } else {
-        // In production, use a relative path that should be handled by Netlify redirects
-        response = await axios.get('/api/shopify/shop.json', {
-          timeout: 10000,
-          headers: {
+      // Configurar headers para produção ou desenvolvimento
+      const headers = window.location.hostname === 'localhost' || window.location.hostname.includes('lovableproject.com')
+        ? {} // No dev, o proxy já adiciona os headers
+        : {
             'X-Shopify-Access-Token': import.meta.env.VITE_SHOPIFY_ACCESS_TOKEN,
             'Content-Type': 'application/json'
-          }
-        });
-      }
+          };
+      
+      // Teste a conexão obtendo informações da loja
+      const response = await axios.get(baseUrl, {
+        timeout: 10000, // 10 segundos de timeout
+        headers
+      });
       
       if (response.data?.shop) {
         setStatus('success');
@@ -45,11 +42,9 @@ const ShopifyConnectionTest = () => {
       if (error.response?.status === 401) {
         setErrorMessage('Token de acesso inválido ou expirado');
       } else if (error.response?.status === 404) {
-        setErrorMessage('URL da loja inválida ou API não encontrada');
+        setErrorMessage('URL da loja inválida');
       } else if (error.code === 'ECONNABORTED') {
         setErrorMessage('Tempo limite de conexão excedido. Tente novamente.');
-      } else if (error.message.includes('Network Error') || error.message.includes('CORS')) {
-        setErrorMessage('Erro de conexão. Verifique se a API está acessível e as configurações de CORS estão corretas.');
       } else {
         setErrorMessage(error.message || 'Erro ao conectar com Shopify');
       }

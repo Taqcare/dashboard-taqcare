@@ -45,31 +45,16 @@ export interface ShippingRate {
   destination: string;
 }
 
-// Determine if we're in development or production
-const isDev = window.location.hostname === 'localhost' || 
-              window.location.hostname.includes('lovableproject.com');
-
-// Configure the Shopify API client
 const shopifyApi = axios.create({
-  // In development, use the proxy
-  baseURL: isDev ? '/admin/api/2024-01' : null,
+  baseURL: '/admin/api/2024-01',
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    'Accept': 'application/json',
+    'X-Shopify-Access-Token': import.meta.env.VITE_SHOPIFY_ACCESS_TOKEN,
+    'Keep-Alive': 'timeout=30, max=100'
   }
 });
-
-// For production, we'll need to manually construct the full URL each time
-const getShopifyUrl = (endpoint) => {
-  if (isDev) {
-    return endpoint; // In dev, the baseURL is already set
-  } else {
-    // In production, use a serverless function or backend API
-    // For now, we'll use a relative URL that should be handled by the Netlify redirect rules
-    return `/api/shopify/${endpoint.replace(/^\//, '')}`;
-  }
-};
 
 // Configure retry logic
 axiosRetry(shopifyApi, {
@@ -106,16 +91,16 @@ const calculateOrderShippingCost = (order: any, shippingCosts: Record<string, nu
 
 const fetchOrdersBatch = async (startDateTime: string, endDateTime: string, lastId = 0): Promise<any[]> => {
   try {
-    const endpoint = `/orders.json?created_at_min=${encodeURIComponent(startDateTime)}&created_at_max=${encodeURIComponent(endDateTime)}&status=any&limit=50&since_id=${lastId}&fields=id,total_price,financial_status,created_at,cancelled_at,closed_at,fulfillment_status,line_items,shipping_lines,gateway,payment_details`;
-    
-    const url = getShopifyUrl(endpoint);
-    const config = !isDev ? {
-      headers: {
-        'X-Shopify-Access-Token': import.meta.env.VITE_SHOPIFY_ACCESS_TOKEN
+    const response = await shopifyApi.get('/orders.json', {
+      params: {
+        created_at_min: startDateTime,
+        created_at_max: endDateTime,
+        status: 'any',
+        limit: 50,
+        since_id: lastId,
+        fields: 'id,total_price,financial_status,created_at,cancelled_at,closed_at,fulfillment_status,line_items,shipping_lines,gateway,payment_details'
       }
-    } : {};
-    
-    const response = await shopifyApi.get(url, config);
+    });
 
     if (!response.data?.orders) {
       return [];
@@ -130,7 +115,6 @@ const fetchOrdersBatch = async (startDateTime: string, endDateTime: string, last
       return orderDate >= startDate && orderDate <= endDate;
     });
   } catch (error: any) {
-    console.error('Error fetching orders batch:', error.response || error);
     if (error.response?.status === 401) {
       throw new Error('Invalid Shopify access token');
     }
@@ -140,15 +124,12 @@ const fetchOrdersBatch = async (startDateTime: string, endDateTime: string, last
 
 export const fetchProducts = async (): Promise<ShopifyProduct[]> => {
   try {
-    const endpoint = '/products.json?limit=250&fields=id,title,variants,image';
-    const url = getShopifyUrl(endpoint);
-    const config = !isDev ? {
-      headers: {
-        'X-Shopify-Access-Token': import.meta.env.VITE_SHOPIFY_ACCESS_TOKEN
+    const response = await shopifyApi.get('/products.json', {
+      params: {
+        limit: 250,
+        fields: 'id,title,variants,image'
       }
-    } : {};
-    
-    const response = await shopifyApi.get(url, config);
+    });
 
     if (!response.data?.products) {
       return [];
@@ -167,12 +148,36 @@ export const fetchProducts = async (): Promise<ShopifyProduct[]> => {
       }))
     }));
   } catch (error: any) {
-    console.error('Error fetching products:', error.response || error);
     if (error.response?.status === 401) {
       throw new Error('Invalid Shopify access token');
     }
     throw error;
   }
+};
+
+export const fetchShippingRates = async (): Promise<ShippingRate[]> => {
+  return [
+    {
+      id: 'free-shipping',
+      name: 'FRETE GRÁTIS',
+      description: 'De 7 a 14 dias | Da Alemanha até a sua casa',
+      price: '0.00',
+      shippingCost: 0,
+      processingTime: '7-14 dias',
+      origin: 'PRC China',
+      destination: 'Brasil'
+    },
+    {
+      id: 'premium-shipping',
+      name: 'FRETE PREMIUM',
+      description: 'De 7 a 14 dias | Segurança Premium no seu Pedido',
+      price: '29.00',
+      shippingCost: 0,
+      processingTime: '7-14 dias',
+      origin: 'PRC China',
+      destination: 'Brasil'
+    }
+  ];
 };
 
 const isPaidOrder = (order: any): boolean => {
@@ -208,31 +213,6 @@ const calculateOrderTaxes = (order: any, taxRate: number, prcTaxPerOrder: number
   };
 };
 
-export const fetchShippingRates = async (): Promise<ShippingRate[]> => {
-  return [
-    {
-      id: 'free-shipping',
-      name: 'FRETE GRÁTIS',
-      description: 'De 7 a 14 dias | Da Alemanha até a sua casa',
-      price: '0.00',
-      shippingCost: 0,
-      processingTime: '7-14 dias',
-      origin: 'PRC China',
-      destination: 'Brasil'
-    },
-    {
-      id: 'premium-shipping',
-      name: 'FRETE PREMIUM',
-      description: 'De 7 a 14 dias | Segurança Premium no seu Pedido',
-      price: '29.00',
-      shippingCost: 0,
-      processingTime: '7-14 dias',
-      origin: 'PRC China',
-      destination: 'Brasil'
-    }
-  ];
-};
-
 export const fetchShopifyMetrics = async (startDate: string, endDate: string): Promise<ShopifyMetrics> => {
   try {
     if (!startDate || !endDate) {
@@ -264,22 +244,6 @@ export const fetchShopifyMetrics = async (startDate: string, endDate: string): P
     let retryCount = 0;
     const MAX_RETRIES = 3;
     const BATCH_DELAY = 1000;
-
-    // First, check if we can connect to Shopify API
-    try {
-      const testEndpoint = '/shop.json';
-      const testUrl = getShopifyUrl(testEndpoint);
-      const config = !isDev ? {
-        headers: {
-          'X-Shopify-Access-Token': import.meta.env.VITE_SHOPIFY_ACCESS_TOKEN
-        }
-      } : {};
-      
-      await shopifyApi.get(testUrl, config);
-    } catch (error) {
-      console.error('Shopify API connection test failed:', error);
-      throw new Error('Cannot connect to Shopify API');
-    }
 
     while (hasMore && retryCount < MAX_RETRIES) {
       try {

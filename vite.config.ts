@@ -21,6 +21,15 @@ const ENV_VARIABLES = {
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
   
+  // Use hardcoded values instead of environment variables
+  const SHOPIFY_API_URL = mode === 'production' 
+    ? `https://${ENV_VARIABLES.VITE_SHOPIFY_STORE_URL}`
+    : '/admin/api';
+    
+  const FB_API_URL = mode === 'production'
+    ? 'https://graph.facebook.com'
+    : '/graph.facebook.com';
+
   const proxyConfig: Record<string, ProxyOptions> = {
     '/admin/api': {
       target: `https://${ENV_VARIABLES.VITE_SHOPIFY_STORE_URL}`,
@@ -30,6 +39,72 @@ export default defineConfig(({ mode }) => {
         'X-Shopify-Access-Token': ENV_VARIABLES.VITE_SHOPIFY_ACCESS_TOKEN,
         'Content-Type': 'application/json',
         'Accept': 'application/json'
+      },
+      configure: (proxy, _options) => {
+        proxy.on('error', (err, req, res) => {
+          console.error('Proxy error:', err);
+          if (!res.headersSent && !res.writableEnded) {
+            res.writeHead(502, {
+              'Content-Type': 'application/json'
+            });
+            res.end(JSON.stringify({ 
+              error: 'Gateway Error',
+              message: err.message || 'Failed to connect to Shopify API'
+            }));
+          }
+        });
+
+        proxy.on('proxyReq', (proxyReq, _req, _res) => {
+          proxyReq.setHeader('X-Shopify-Access-Token', ENV_VARIABLES.VITE_SHOPIFY_ACCESS_TOKEN);
+          proxyReq.setHeader('X-Shopify-API-Version', '2024-01');
+        });
+
+        proxy.on('proxyRes', (proxyRes, req, res) => {
+          let responseBody = '';
+
+          proxyRes.on('data', (chunk) => {
+            responseBody += chunk;
+          });
+
+          proxyRes.on('end', () => {
+            if (!res.headersSent) {
+              try {
+                const parsedBody = JSON.parse(responseBody);
+                res.writeHead(proxyRes.statusCode || 200, {
+                  'Content-Type': 'application/json',
+                  'Access-Control-Allow-Origin': '*',
+                  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Shopify-Access-Token'
+                });
+                res.end(JSON.stringify(parsedBody));
+              } catch (error) {
+                console.error('Error parsing response:', error);
+                if (!res.headersSent) {
+                  res.writeHead(502, {
+                    'Content-Type': 'application/json'
+                  });
+                  res.end(JSON.stringify({
+                    error: 'Invalid Response',
+                    message: 'Failed to parse Shopify API response'
+                  }));
+                }
+              }
+            }
+          });
+
+          proxyRes.on('error', (err) => {
+            console.error('Response stream error:', err);
+            if (!res.headersSent && !res.writableEnded) {
+              res.writeHead(502, {
+                'Content-Type': 'application/json'
+              });
+              res.end(JSON.stringify({
+                error: 'Stream Error',
+                message: err.message
+              }));
+            }
+          });
+        });
       }
     },
     '/graph.facebook.com': {
@@ -40,6 +115,74 @@ export default defineConfig(({ mode }) => {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json'
+      },
+      configure: (proxy, _options) => {
+        proxy.on('error', (err, req, res) => {
+          console.error('Facebook API proxy error:', err);
+          if (!res.headersSent && !res.writableEnded) {
+            res.writeHead(502, {
+              'Content-Type': 'application/json'
+            });
+            res.end(JSON.stringify({ 
+              error: 'Gateway Error',
+              message: err.message || 'Failed to connect to Facebook API'
+            }));
+          }
+        });
+
+        proxy.on('proxyReq', (proxyReq, _req, _res) => {
+          const url = new URL(proxyReq.path, 'https://graph.facebook.com');
+          url.searchParams.append('access_token', ENV_VARIABLES.VITE_FB_ACCESS_TOKEN);
+          url.searchParams.append('input_token', ENV_VARIABLES.VITE_FB_ACCESS_TOKEN);
+          proxyReq.path = url.pathname + url.search;
+        });
+
+        proxy.on('proxyRes', (proxyRes, req, res) => {
+          let responseBody = '';
+
+          proxyRes.on('data', (chunk) => {
+            responseBody += chunk;
+          });
+
+          proxyRes.on('end', () => {
+            if (!res.headersSent) {
+              try {
+                const parsedBody = JSON.parse(responseBody);
+                res.writeHead(proxyRes.statusCode || 200, {
+                  'Content-Type': 'application/json',
+                  'Access-Control-Allow-Origin': '*',
+                  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+                  'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+                });
+                res.end(JSON.stringify(parsedBody));
+              } catch (error) {
+                console.error('Error parsing response:', error);
+                if (!res.headersSent) {
+                  res.writeHead(502, {
+                    'Content-Type': 'application/json'
+                  });
+                  res.end(JSON.stringify({
+                    error: 'Invalid Response',
+                    message: 'Failed to parse Facebook API response'
+                  }));
+                }
+              }
+            }
+          });
+
+          proxyRes.on('error', (err) => {
+            console.error('Response stream error:', err);
+            if (!res.headersSent && !res.writableEnded) {
+              res.writeHead(502, {
+                'Content-Type': 'application/json'
+              });
+              res.end(JSON.stringify({
+                error: 'Stream Error',
+                message: err.message
+              }));
+            }
+          });
+        });
       }
     }
   };

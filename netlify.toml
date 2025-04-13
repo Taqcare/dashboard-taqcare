@@ -16,23 +16,6 @@
   VITE_FB_ACCESS_TOKEN = "EAAJGXh10g8wBOysBjX8k7GciQnk9kBnPrKRbzEs0xMYZCJS7zwI7sbbccZBbjR5paEWZAC4936b5twzl7GxH9NqVt3JcUMnZCo9RcwaZB34IG7mdLJ0IsKMAejDhz9AdCRxUujA1whVhGl4QZCG3NNIsjROVlMU95DXvT2JsIu4bDEr5rZBmYbdqHKmhBgWRRj2OQXY2omL"
   VITE_FB_AD_ACCOUNT_ID = "1048482983703833"
 
-# Shopify API proxy
-[[redirects]]
-  from = "/api/shopify/*"
-  to = "https://1d8ac2-1f.myshopify.com/admin/api/2024-01/:splat"
-  status = 200
-  force = true
-  headers = {X-Shopify-Access-Token = "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", Content-Type = "application/json", Accept = "application/json"}
-
-# Facebook API proxy
-[[redirects]]
-  from = "/api/facebook/*"
-  to = "https://graph.facebook.com/v19.0/:splat"
-  status = 200
-  force = true
-  headers = {Content-Type = "application/json", Accept = "application/json"}
-
-# SPA redirect
 [[redirects]]
   from = "/*"
   to = "/index.html"
@@ -48,7 +31,6 @@
     Access-Control-Allow-Origin = "*"
     Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
     Access-Control-Allow-Headers = "Content-Type, Authorization, X-Shopify-Access-Token"
-    Access-Control-Max-Age = "86400"
 
 [dev]
   framework = "vite"
