@@ -1,5 +1,7 @@
+
 import React, { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, AlertTriangle, RefreshCw } from 'lucide-react';
+import axios from 'axios';
 
 interface PlatformStatus {
   name: string;
@@ -39,27 +41,26 @@ const Webhooks = () => {
             throw new Error('Missing Shopify access token');
           }
 
-          const shopifyResponse = await fetch('/admin/api/2024-01/shop.json', {
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            }
-          });
+          // Determinar a base URL conforme o ambiente
+          const baseUrl = window.location.hostname === 'localhost' || window.location.hostname.includes('lovableproject.com')
+            ? '/admin/api/2024-01/shop.json'
+            : `https://${import.meta.env.VITE_SHOPIFY_STORE_URL}/admin/api/2024-01/shop.json`;
           
-          if (!shopifyResponse.ok) {
-            const errorText = await shopifyResponse.text();
-            console.error('Shopify error response:', errorText);
-            
-            throw new Error(
-              shopifyResponse.status === 401 
-                ? 'Invalid Shopify access token' 
-                : `Failed to connect to Shopify (${shopifyResponse.status})`
-            );
-          }
+          // Configurar headers para produção ou desenvolvimento
+          const headers = window.location.hostname === 'localhost' || window.location.hostname.includes('lovableproject.com')
+            ? {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              }
+            : {
+                'X-Shopify-Access-Token': import.meta.env.VITE_SHOPIFY_ACCESS_TOKEN,
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              };
+
+          const shopifyResponse = await axios.get(baseUrl, { headers });
           
-          const responseData = await shopifyResponse.json();
-          
-          if (!responseData.shop) {
+          if (!shopifyResponse.data?.shop) {
             throw new Error('Invalid Shopify response structure');
           }
           
@@ -67,30 +68,25 @@ const Webhooks = () => {
         }
 
         case 'Facebook': {
-          const fbResponse = await fetch(
-            `/graph.facebook.com/v19.0/debug_token`,
-            {
-              headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-              }
+          // Determinar a base URL conforme o ambiente
+          const baseUrl = window.location.hostname === 'localhost' || window.location.hostname.includes('lovableproject.com')
+            ? '/graph.facebook.com/v19.0/debug_token'
+            : `https://graph.facebook.com/v19.0/debug_token`;
+          
+          // Construir parâmetros da URL
+          const params = new URLSearchParams({
+            input_token: import.meta.env.VITE_FB_ACCESS_TOKEN || '',
+            access_token: import.meta.env.VITE_FB_ACCESS_TOKEN || ''
+          });
+          
+          const fbResponse = await axios.get(`${baseUrl}?${params.toString()}`, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
             }
-          );
+          });
           
-          if (!fbResponse.ok) {
-            const errorText = await fbResponse.text();
-            console.error('Facebook error response:', errorText);
-            
-            throw new Error(
-              fbResponse.status === 401 
-                ? 'Invalid Facebook access token' 
-                : `Failed to connect to Facebook (${fbResponse.status})`
-            );
-          }
-          
-          const fbData = await fbResponse.json();
-
-          if (!fbData.data?.is_valid) {
+          if (!fbResponse.data?.data?.is_valid) {
             throw new Error('Invalid Facebook token');
           }
           

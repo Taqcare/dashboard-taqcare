@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
 import axios from 'axios';
@@ -11,9 +12,23 @@ const ShopifyConnectionTest = () => {
     setErrorMessage('');
 
     try {
-      // Test the connection by trying to fetch shop information
-      const response = await axios.get('/admin/api/2024-01/shop.json', {
-        timeout: 10000 // 10 second timeout
+      // Determinar a base URL conforme o ambiente
+      const baseUrl = window.location.hostname === 'localhost' || window.location.hostname.includes('lovableproject.com')
+        ? '/admin/api/2024-01/shop.json'
+        : `https://${import.meta.env.VITE_SHOPIFY_STORE_URL}/admin/api/2024-01/shop.json`;
+      
+      // Configurar headers para produção ou desenvolvimento
+      const headers = window.location.hostname === 'localhost' || window.location.hostname.includes('lovableproject.com')
+        ? {} // No dev, o proxy já adiciona os headers
+        : {
+            'X-Shopify-Access-Token': import.meta.env.VITE_SHOPIFY_ACCESS_TOKEN,
+            'Content-Type': 'application/json'
+          };
+      
+      // Teste a conexão obtendo informações da loja
+      const response = await axios.get(baseUrl, {
+        timeout: 10000, // 10 segundos de timeout
+        headers
       });
       
       if (response.data?.shop) {
@@ -22,6 +37,7 @@ const ShopifyConnectionTest = () => {
         throw new Error('Invalid response format');
       }
     } catch (error: any) {
+      console.error('Shopify error response:', error.response?.data || error.message);
       setStatus('error');
       if (error.response?.status === 401) {
         setErrorMessage('Token de acesso inválido ou expirado');

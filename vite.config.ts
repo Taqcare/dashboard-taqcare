@@ -1,3 +1,4 @@
+
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
@@ -215,14 +216,6 @@ export default defineConfig(({ mode }) => {
             icons: ['lucide-react']
           }
         }
-      }
-    },
-    // Adicionado para garantir compatibilidade com o script de build
-    command: {
-      build: {
-        // Configurações específicas para o comando build
-        brotliSize: false,
-        clearScreen: false
       }
     }
   };
