@@ -1,5 +1,6 @@
+
 import React, { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Wallet, 
   Receipt, 
@@ -26,6 +27,7 @@ interface SidebarProps {
 
 const Sidebar: React.FC<SidebarProps> = ({ store, onCloseMobile }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [platformStatuses, setPlatformStatuses] = useState<PlatformStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -125,6 +127,22 @@ const Sidebar: React.FC<SidebarProps> = ({ store, onCloseMobile }) => {
     }
   };
 
+  // Helper function to check if a route is active
+  const isRouteActive = (path: string) => {
+    // Exact match for dashboard route
+    if (path === `/${store}` && location.pathname === path) {
+      return true;
+    }
+    
+    // For other routes, check if the current path starts with the menu item path
+    // This prevents dashboard from being highlighted when on other pages
+    if (path !== `/${store}`) {
+      return location.pathname.startsWith(path);
+    }
+    
+    return false;
+  };
+
   return (
     <div className="bg-gray-900 text-white w-64 h-full min-h-screen px-4 py-6">
       <div className="flex items-center mb-8 px-2">
@@ -144,7 +162,7 @@ const Sidebar: React.FC<SidebarProps> = ({ store, onCloseMobile }) => {
             onClick={handleNavClick}
             className={({ isActive }) =>
               `flex items-center px-4 py-3 rounded-lg transition-colors ${
-                isActive
+                isRouteActive(item.path)
                   ? 'bg-blue-600 text-white'
                   : 'text-gray-300 hover:bg-gray-800'
               }`
