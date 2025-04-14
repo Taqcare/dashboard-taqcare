@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { 
@@ -12,6 +11,7 @@ import {
   XCircle,
   LogOut
 } from 'lucide-react';
+import { testWorkerConnection } from '../services/shopifyWorker';
 
 interface PlatformStatus {
   name: string;
@@ -46,15 +46,11 @@ const Sidebar: React.FC<SidebarProps> = ({ store, onCloseMobile }) => {
           try {
             switch (platform) {
               case 'Shopify':
-                const shopifyResponse = await fetch('/admin/api/2024-01/shop.json', {
-                  headers: {
-                    'X-Shopify-Access-Token': import.meta.env.VITE_SHOPIFY_ACCESS_TOKEN || ''
-                  }
-                });
+                const shopifyResult = await testWorkerConnection();
                 return {
                   name: platform,
-                  isConnected: shopifyResponse.ok,
-                  error: !shopifyResponse.ok ? 'Failed to connect' : undefined
+                  isConnected: shopifyResult.isConnected,
+                  error: !shopifyResult.isConnected ? shopifyResult.error : undefined
                 };
 
               case 'Facebook':

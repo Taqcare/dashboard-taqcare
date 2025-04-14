@@ -50,9 +50,8 @@ const ShopifyWorkerTest = () => {
         <div className="flex items-center gap-3">
           <span className="font-medium text-gray-700">Worker URL:</span>
           <code className="px-2 py-1 bg-gray-100 rounded text-sm">
-            https://shopify-proxy-worker.your-worker-subdomain.workers.dev
+            {`https://shopify-proxy-worker.alexsjesus561.workers.dev`}
           </code>
-          <span className="text-xs text-amber-600">(Atualize após implantar o worker)</span>
         </div>
 
         {status !== 'idle' && (
