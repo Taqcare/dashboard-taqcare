@@ -33,8 +33,8 @@ const PlatformCard: React.FC<PlatformCardProps> = ({ platform }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm p-6">
-      <div className="flex items-start justify-between mb-4">
+    <div className="bg-white rounded-lg shadow-sm p-4 md:p-6">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-3">
           <div className="relative">
             {getStatusIcon(platform)}
@@ -46,7 +46,7 @@ const PlatformCard: React.FC<PlatformCardProps> = ({ platform }) => {
             </p>
           </div>
         </div>
-        <div className={`px-3 py-1 rounded-full text-sm ${
+        <div className={`px-3 py-1 rounded-full text-sm w-fit ${
           platform.isConnected 
             ? 'bg-green-100 text-green-800' 
             : 'bg-red-100 text-red-800'
@@ -58,31 +58,31 @@ const PlatformCard: React.FC<PlatformCardProps> = ({ platform }) => {
       {platform.error && (
         <div className="mb-4 p-4 bg-red-50 text-red-700 rounded-lg text-sm flex items-center gap-2">
           <AlertTriangle className="h-5 w-5 flex-shrink-0" />
-          <span>{platform.error}</span>
+          <span className="break-words">{platform.error}</span>
         </div>
       )}
 
       <div className="space-y-3">
-        <div className="flex items-center justify-between text-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between text-sm">
           <span className="text-gray-600">API Key</span>
-          <code className="px-2 py-1 bg-gray-100 rounded">
+          <code className="mt-1 md:mt-0 px-2 py-1 bg-gray-100 rounded break-all">
             {maskKey(platform.apiKey)}
           </code>
         </div>
 
         {platform.accessToken && (
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex flex-col md:flex-row md:items-center justify-between text-sm">
             <span className="text-gray-600">Access Token</span>
-            <code className="px-2 py-1 bg-gray-100 rounded">
+            <code className="mt-1 md:mt-0 px-2 py-1 bg-gray-100 rounded break-all">
               {maskKey(platform.accessToken)}
             </code>
           </div>
         )}
 
         {platform.name === 'Shopify' && (
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex flex-col md:flex-row md:items-center justify-between text-sm">
             <span className="text-gray-600">Store URL</span>
-            <code className="px-2 py-1 bg-gray-100 rounded">
+            <code className="mt-1 md:mt-0 px-2 py-1 bg-gray-100 rounded break-all">
               {import.meta.env.VITE_SHOPIFY_STORE_URL || '—'}
             </code>
           </div>
@@ -91,15 +91,15 @@ const PlatformCard: React.FC<PlatformCardProps> = ({ platform }) => {
 
       {platform.name === 'Facebook' && platform.isConnected && (
         <div className="mt-4 pt-4 border-t border-gray-100">
-          <div className="flex items-center justify-between text-sm">
+          <div className="flex flex-col md:flex-row md:items-center justify-between text-sm">
             <span className="text-gray-600">Business ID</span>
-            <code className="px-2 py-1 bg-gray-100 rounded">
+            <code className="mt-1 md:mt-0 px-2 py-1 bg-gray-100 rounded break-all">
               {maskKey(import.meta.env.VITE_FB_BUSINESS_ID || '')}
             </code>
           </div>
-          <div className="flex items-center justify-between text-sm mt-3">
+          <div className="flex flex-col md:flex-row md:items-center justify-between text-sm mt-3">
             <span className="text-gray-600">Ad Account ID</span>
-            <code className="px-2 py-1 bg-gray-100 rounded">
+            <code className="mt-1 md:mt-0 px-2 py-1 bg-gray-100 rounded break-all">
               {maskKey(import.meta.env.VITE_FB_AD_ACCOUNT_ID || '')}
             </code>
           </div>
