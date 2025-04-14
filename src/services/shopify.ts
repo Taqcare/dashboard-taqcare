@@ -3,6 +3,7 @@ import axiosRetry from 'axios-retry';
 import { format, startOfDay, endOfDay } from 'date-fns';
 import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
 import { getShopInfo, getProducts, getOrders } from './shopifyWorker';
+import { supabase } from '../integrations/supabase/client';
 
 export interface ShopifyMetrics {
   totalRevenue: number;
@@ -128,12 +129,29 @@ export const fetchProducts = async (): Promise<ShopifyProduct[]> => {
     if (!response?.products) {
       return [];
     }
+    
+    // Get product costs from Supabase
+    const { data: costData, error: costError } = await supabase
+      .from('product_costs')
+      .select('product_id, cost');
+    
+    if (costError) {
+      console.error("Error fetching product costs from Supabase:", costError);
+    }
+    
+    // Create a map of product costs
+    const productCostsMap: Record<number, number> = {};
+    if (costData) {
+      costData.forEach(item => {
+        productCostsMap[item.product_id] = Number(item.cost);
+      });
+    }
 
     return response.products.map((product: any) => ({
       id: product.id,
       title: product.title,
       price: product.variants[0]?.price || '0',
-      productCost: 0,
+      productCost: productCostsMap[product.id] || 0,
       image: product.image?.src || '',
       variants: product.variants.map((variant: any) => ({
         id: variant.id,

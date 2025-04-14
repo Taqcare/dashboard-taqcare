@@ -1,6 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Package, Truck, ChevronDown, Plus, Receipt, Ban as Bank, Search, RefreshCw, Save, ImageOff, Percent } from 'lucide-react';
 import { fetchProducts, fetchShippingRates, type ShopifyProduct, type ShippingRate } from '../services/shopify';
+import { supabase } from "../integrations/supabase/client";
+import { toast } from "../components/ui/use-toast";
 
 interface CostItem {
   id: string;
@@ -9,8 +12,6 @@ interface CostItem {
   type: 'fixed' | 'percentage';
 }
 
-const PRODUCT_COSTS_KEY = 'productCosts';
-const SHIPPING_COSTS_KEY = 'shippingCosts';
 const PRC_TAXES_KEY = 'prcTaxes';
 const TAXES_IOF_KEY = 'taxesIof';
 
@@ -24,16 +25,13 @@ const CostSettings = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [productCosts, setProductCosts] = useState<Record<number, number>>(() => {
-    const savedCosts = localStorage.getItem(PRODUCT_COSTS_KEY);
-    return savedCosts ? JSON.parse(savedCosts) : {};
-  });
+  const [productCosts, setProductCosts] = useState<Record<number, number>>({});
   
   const [shippingRates, setShippingRates] = useState<ShippingRate[]>([]);
   const [shippingLoading, setShippingLoading] = useState(false);
   const [shippingError, setShippingError] = useState<string | null>(null);
   const [shippingCosts, setShippingCosts] = useState<Record<number, number>>(() => {
-    const savedCosts = localStorage.getItem(SHIPPING_COSTS_KEY);
+    const savedCosts = localStorage.getItem('shippingCosts');
     return savedCosts ? JSON.parse(savedCosts) : {};
   });
   
@@ -54,15 +52,46 @@ const CostSettings = () => {
   const [unsavedChanges, setUnsavedChanges] = useState<Record<string, boolean>>({});
   const [saving, setSaving] = useState(false);
 
+  // Load product costs from Supabase
+  const loadProductCostsFromSupabase = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('product_costs')
+        .select('product_id, cost');
+      
+      if (error) {
+        console.error("Error loading product costs from Supabase:", error);
+        return {};
+      }
+      
+      if (data && data.length > 0) {
+        const costs: Record<number, number> = {};
+        data.forEach(item => {
+          costs[item.product_id] = Number(item.cost);
+        });
+        return costs;
+      }
+      
+      return {};
+    } catch (err) {
+      console.error("Failed to fetch product costs from Supabase:", err);
+      return {};
+    }
+  };
+
   const loadProducts = async () => {
     try {
       setLoading(true);
       setError(null);
       const fetchedProducts = await fetchProducts();
       
+      // Load costs from Supabase
+      const supabaseCosts = await loadProductCostsFromSupabase();
+      setProductCosts(supabaseCosts);
+      
       const productsWithCosts = fetchedProducts.map(product => ({
         ...product,
-        productCost: productCosts[product.id] || 0
+        productCost: supabaseCosts[product.id] || 0
       }));
       
       setProducts(productsWithCosts);
@@ -146,16 +175,61 @@ const CostSettings = () => {
     }));
   };
 
+  // Save product cost to Supabase
   const handleSaveProductCost = async (productId: number) => {
     try {
       setSaving(true);
+      const cost = productCosts[productId] || 0;
+      const productTitle = products.find(p => p.id === productId)?.title || '';
       
-      localStorage.setItem(PRODUCT_COSTS_KEY, JSON.stringify(productCosts));
+      // First check if the product cost already exists
+      const { data: existingCost, error: fetchError } = await supabase
+        .from('product_costs')
+        .select('id')
+        .eq('product_id', productId)
+        .single();
       
+      let result;
+      
+      if (fetchError && fetchError.code !== 'PGRST116') {
+        // Error other than "no rows returned"
+        console.error("Error checking existing product cost:", fetchError);
+        toast({
+          title: "Erro!",
+          description: "Não foi possível verificar o custo do produto existente.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      if (existingCost) {
+        // Update existing record
+        result = await supabase
+          .from('product_costs')
+          .update({ cost, updated_at: new Date().toISOString() })
+          .eq('product_id', productId);
+      } else {
+        // Insert new record
+        result = await supabase
+          .from('product_costs')
+          .insert({ product_id: productId, product_title: productTitle, cost });
+      }
+      
+      if (result.error) {
+        console.error("Error saving product cost to Supabase:", result.error);
+        toast({
+          title: "Erro ao salvar!",
+          description: "Não foi possível salvar o custo do produto.",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      // Update local state
       setProducts(prevProducts => 
         prevProducts.map(product => 
           product.id === productId 
-            ? { ...product, productCost: productCosts[productId] || 0 }
+            ? { ...product, productCost: cost }
             : product
         )
       );
@@ -164,8 +238,19 @@ const CostSettings = () => {
         ...prev,
         [`product-${productId}`]: false
       }));
+      
+      toast({
+        title: "Salvo!",
+        description: "Custo do produto salvo com sucesso.",
+        variant: "default"
+      });
     } catch (err) {
       console.error('Error saving product cost:', err);
+      toast({
+        title: "Erro!",
+        description: "Ocorreu um erro ao salvar o custo do produto.",
+        variant: "destructive"
+      });
     } finally {
       setSaving(false);
     }
@@ -174,14 +259,25 @@ const CostSettings = () => {
   const handleSaveShippingCost = async (rateId: number) => {
     try {
       setSaving(true);
-      localStorage.setItem(SHIPPING_COSTS_KEY, JSON.stringify(shippingCosts));
+      localStorage.setItem('shippingCosts', JSON.stringify(shippingCosts));
       
       setUnsavedChanges(prev => ({
         ...prev,
         [`shipping-${rateId}`]: false
       }));
+      
+      toast({
+        title: "Salvo!",
+        description: "Custo de envio salvo com sucesso.",
+        variant: "default"
+      });
     } catch (err) {
       console.error('Error saving shipping cost:', err);
+      toast({
+        title: "Erro!",
+        description: "Ocorreu um erro ao salvar o custo de envio.",
+        variant: "destructive"
+      });
     } finally {
       setSaving(false);
     }
@@ -192,8 +288,19 @@ const CostSettings = () => {
       setSaving(true);
       localStorage.setItem(PRC_TAXES_KEY, JSON.stringify(prcTaxes));
       setUnsavedChanges(prev => ({ ...prev, 'prc-taxes': false }));
+      
+      toast({
+        title: "Salvo!",
+        description: "Taxas PRC salvas com sucesso.",
+        variant: "default"
+      });
     } catch (err) {
       console.error('Error saving PRC taxes:', err);
+      toast({
+        title: "Erro!",
+        description: "Ocorreu um erro ao salvar as taxas PRC.",
+        variant: "destructive"
+      });
     } finally {
       setSaving(false);
     }
@@ -204,8 +311,19 @@ const CostSettings = () => {
       setSaving(true);
       localStorage.setItem(TAXES_IOF_KEY, JSON.stringify(taxesIof));
       setUnsavedChanges(prev => ({ ...prev, 'taxes-iof': false }));
+      
+      toast({
+        title: "Salvo!",
+        description: "Impostos e IOF salvos com sucesso.",
+        variant: "default"
+      });
     } catch (err) {
       console.error('Error saving taxes and IOF:', err);
+      toast({
+        title: "Erro!",
+        description: "Ocorreu um erro ao salvar os impostos e IOF.",
+        variant: "destructive"
+      });
     } finally {
       setSaving(false);
     }
