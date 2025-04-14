@@ -1,5 +1,7 @@
+
 import useSWR from 'swr';
 import { fetchShopifyMetrics, ShopifyMetrics } from '../services/shopify';
+import { getShopInfo, getProducts, getOrders } from '../services/shopifyWorker';
 import { startOfDay, endOfDay, subDays, startOfMonth, endOfMonth, startOfYear, endOfYear, parse, format } from 'date-fns';
 
 const formatDateForShopify = (date: Date) => {

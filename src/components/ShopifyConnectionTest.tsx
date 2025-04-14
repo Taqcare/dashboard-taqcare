@@ -1,53 +1,30 @@
 
 import React, { useState } from 'react';
 import { AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
-import axios from 'axios';
+import { testWorkerConnection } from '../services/shopifyWorker';
 
 const ShopifyConnectionTest = () => {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [shopInfo, setShopInfo] = useState<any>(null);
 
-  const testConnection = async () => {
+  const checkConnection = async () => {
     setStatus('loading');
     setErrorMessage('');
 
     try {
-      // Determinar a base URL conforme o ambiente
-      const baseUrl = window.location.hostname === 'localhost' || window.location.hostname.includes('lovableproject.com')
-        ? '/admin/api/2024-01/shop.json'
-        : `https://${import.meta.env.VITE_SHOPIFY_STORE_URL}/admin/api/2024-01/shop.json`;
+      const result = await testWorkerConnection();
       
-      // Configurar headers para produção ou desenvolvimento
-      const headers = window.location.hostname === 'localhost' || window.location.hostname.includes('lovableproject.com')
-        ? {} // No dev, o proxy já adiciona os headers
-        : {
-            'X-Shopify-Access-Token': import.meta.env.VITE_SHOPIFY_ACCESS_TOKEN,
-            'Content-Type': 'application/json'
-          };
-      
-      // Teste a conexão obtendo informações da loja
-      const response = await axios.get(baseUrl, {
-        timeout: 10000, // 10 segundos de timeout
-        headers
-      });
-      
-      if (response.data?.shop) {
+      if (result.isConnected) {
         setStatus('success');
+        setShopInfo(result.shopInfo);
       } else {
-        throw new Error('Invalid response format');
+        throw new Error(result.error);
       }
     } catch (error: any) {
-      console.error('Shopify error response:', error.response?.data || error.message);
+      console.error('Shopify error response:', error);
       setStatus('error');
-      if (error.response?.status === 401) {
-        setErrorMessage('Token de acesso inválido ou expirado');
-      } else if (error.response?.status === 404) {
-        setErrorMessage('URL da loja inválida');
-      } else if (error.code === 'ECONNABORTED') {
-        setErrorMessage('Tempo limite de conexão excedido. Tente novamente.');
-      } else {
-        setErrorMessage(error.message || 'Erro ao conectar com Shopify');
-      }
+      setErrorMessage(error.message || 'Erro ao conectar com Shopify Worker');
     }
   };
 
@@ -56,7 +33,7 @@ const ShopifyConnectionTest = () => {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-medium text-gray-900">Status da Conexão Shopify</h2>
         <button
-          onClick={testConnection}
+          onClick={checkConnection}
           disabled={status === 'loading'}
           className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
         >
@@ -71,16 +48,9 @@ const ShopifyConnectionTest = () => {
 
       <div className="space-y-4">
         <div className="flex items-center gap-3">
-          <span className="font-medium text-gray-700">Store URL:</span>
+          <span className="font-medium text-gray-700">Worker URL:</span>
           <code className="px-2 py-1 bg-gray-100 rounded text-sm">
-            {import.meta.env.VITE_SHOPIFY_STORE_URL}
-          </code>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <span className="font-medium text-gray-700">Access Token:</span>
-          <code className="px-2 py-1 bg-gray-100 rounded text-sm">
-            {import.meta.env.VITE_SHOPIFY_ACCESS_TOKEN?.slice(0, 8)}...
+            {`https://shopify-proxy-worker.alexsjesus561.workers.dev`}
           </code>
         </div>
 
@@ -105,6 +75,15 @@ const ShopifyConnectionTest = () => {
             ) : (
               <span>Testando conexão...</span>
             )}
+          </div>
+        )}
+
+        {status === 'success' && shopInfo && (
+          <div className="mt-4">
+            <h3 className="font-medium text-gray-800 mb-2">Informações da Loja:</h3>
+            <div className="bg-gray-50 p-4 rounded-lg overflow-auto max-h-60">
+              <pre className="text-xs">{JSON.stringify(shopInfo, null, 2)}</pre>
+            </div>
           </div>
         )}
       </div>

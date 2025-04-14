@@ -2,6 +2,7 @@ import axios from 'axios';
 import axiosRetry from 'axios-retry';
 import { format, startOfDay, endOfDay } from 'date-fns';
 import { zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
+import { getShopInfo, getProducts, getOrders } from './shopifyWorker';
 
 export interface ShopifyMetrics {
   totalRevenue: number;
@@ -56,7 +57,6 @@ const shopifyApi = axios.create({
   }
 });
 
-// Configure retry logic
 axiosRetry(shopifyApi, {
   retries: 3,
   retryDelay: (retryCount) => Math.min(1000 * Math.pow(2, retryCount), 5000),
@@ -106,7 +106,6 @@ const fetchOrdersBatch = async (startDateTime: string, endDateTime: string, last
       return [];
     }
 
-    // Filter orders based on their creation date
     return response.data.orders.filter((order: any) => {
       const orderDate = new Date(order.created_at);
       const startDate = new Date(startDateTime);
@@ -235,49 +234,34 @@ export const fetchShopifyMetrics = async (startDate: string, endDate: string): P
     const start = zonedTimeToUtc(startOfDay(new Date(startDate)), timeZone);
     const end = zonedTimeToUtc(endOfDay(new Date(endDate)), timeZone);
     
-    const startDateTime = formatShopifyDate(start);
-    const endDateTime = formatShopifyDate(end);
+    const startDateTime = format(start, "yyyy-MM-dd'T'HH:mm:ssxxx");
+    const endDateTime = format(end, "yyyy-MM-dd'T'HH:mm:ssxxx");
 
-    let allOrders = [];
-    let hasMore = true;
-    let lastId = 0;
-    let retryCount = 0;
-    const MAX_RETRIES = 3;
-    const BATCH_DELAY = 1000;
+    // Fetch orders using the Cloudflare Worker
+    const response = await getOrders({
+      created_at_min: startDateTime,
+      created_at_max: endDateTime,
+      status: 'any',
+      limit: 250,
+      fields: 'id,total_price,financial_status,created_at,cancelled_at,closed_at,fulfillment_status,line_items,shipping_lines,gateway,payment_details'
+    });
 
-    while (hasMore && retryCount < MAX_RETRIES) {
-      try {
-        const orders = await fetchOrdersBatch(startDateTime, endDateTime, lastId);
-        
-        if (orders.length === 0) {
-          hasMore = false;
-        } else {
-          allOrders = [...allOrders, ...orders];
-          lastId = Math.max(...orders.map(order => parseInt(order.id)));
-          hasMore = orders.length === 50;
-          
-          if (hasMore) {
-            await new Promise(resolve => setTimeout(resolve, BATCH_DELAY));
-          }
-        }
-        
-        retryCount = 0;
-      } catch (error: any) {
-        retryCount++;
-        
-        if (error.message === 'Invalid Shopify access token') {
-          throw error;
-        }
-        
-        if (retryCount >= MAX_RETRIES) {
-          throw new Error('Max retry attempts reached while fetching orders');
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, Math.min(1000 * Math.pow(2, retryCount), 5000)));
-      }
+    if (!response?.orders) {
+      throw new Error('Failed to fetch orders from Shopify worker');
     }
 
-    const paidOrders = allOrders.filter(isPaidOrder);
+    const allOrders = response.orders;
+
+    // Filter orders based on their creation date
+    const filteredOrders = allOrders.filter((order: any) => {
+      const orderDate = new Date(order.created_at);
+      const startDate = new Date(startDateTime);
+      const endDate = new Date(endDateTime);
+      
+      return orderDate >= startDate && orderDate <= endDate;
+    });
+
+    const paidOrders = filteredOrders.filter(isPaidOrder);
 
     // Calculate taxes for all paid orders
     const taxes = paidOrders.reduce((acc, order) => {
@@ -288,7 +272,7 @@ export const fetchShopifyMetrics = async (startDate: string, endDate: string): P
       };
     }, { orderTaxes: 0, prcTaxes: 0 });
 
-    const totalRevenue = allOrders.reduce((sum: number, order: any) => {
+    const totalRevenue = filteredOrders.reduce((sum: number, order: any) => {
       const price = parseFloat(order.total_price || '0');
       return sum + (isNaN(price) ? 0 : price);
     }, 0);
@@ -316,7 +300,7 @@ export const fetchShopifyMetrics = async (startDate: string, endDate: string): P
         }, 0)
       : 0;
 
-    const orderCount = allOrders.length;
+    const orderCount = filteredOrders.length;
     const paidOrderCount = paidOrders.length;
     const aov = paidOrderCount > 0 ? paidRevenue / paidOrderCount : 0;
 

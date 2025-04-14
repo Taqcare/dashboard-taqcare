@@ -1,39 +1,17 @@
 
 import axios from 'axios';
 import { PlatformStatus } from './PlatformCard';
+import { testWorkerConnection } from '../../services/shopifyWorker';
 
 export const testConnection = async (platform: PlatformStatus) => {
   try {
     switch (platform.name) {
       case 'Shopify': {
-        if (!platform.accessToken) {
-          throw new Error('Missing Shopify access token');
-        }
-
-        // Determinar a base URL conforme o ambiente
-        const baseUrl = window.location.hostname === 'localhost' || window.location.hostname.includes('lovableproject.com')
-          ? '/admin/api/2024-01/shop.json'
-          : `https://${import.meta.env.VITE_SHOPIFY_STORE_URL}/admin/api/2024-01/shop.json`;
-        
-        // Configurar headers para produção ou desenvolvimento
-        const headers = window.location.hostname === 'localhost' || window.location.hostname.includes('lovableproject.com')
-          ? {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            }
-          : {
-              'X-Shopify-Access-Token': import.meta.env.VITE_SHOPIFY_ACCESS_TOKEN,
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            };
-
-        const shopifyResponse = await axios.get(baseUrl, { headers });
-        
-        if (!shopifyResponse.data?.shop) {
-          throw new Error('Invalid Shopify response structure');
-        }
-        
-        return { isConnected: true, error: undefined };
+        const shopifyResult = await testWorkerConnection();
+        return { 
+          isConnected: shopifyResult.isConnected, 
+          error: !shopifyResult.isConnected ? shopifyResult.error : undefined 
+        };
       }
 
       case 'Facebook': {
