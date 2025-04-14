@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { AlertCircle, CheckCircle, RefreshCw } from 'lucide-react';
 import { testWorkerConnection } from '../services/shopifyWorker';
@@ -30,7 +29,7 @@ const ShopifyWorkerTest = () => {
 
   return (
     <div className="bg-white rounded-[10px] shadow-sm p-4 md:p-6 mb-6 overflow-hidden">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+      <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
         <h2 className="text-lg font-medium text-gray-900">Status da Conexão Shopify</h2>
         <button
           onClick={checkConnection}
@@ -50,7 +49,7 @@ const ShopifyWorkerTest = () => {
         <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-3">
           <span className="font-medium text-gray-700 whitespace-nowrap">Worker URL:</span>
           <code className="px-2 py-1 bg-gray-100 rounded text-sm break-all">
-            {`https://shopify-proxy-worker.alexsjesus561.workers.dev`}
+            {`https://shopify-proxy-worker.empyrialdwm.workers.dev`}
           </code>
         </div>
 

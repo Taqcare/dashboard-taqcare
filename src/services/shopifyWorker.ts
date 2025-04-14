@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Base URL for the Cloudflare Worker
-const WORKER_BASE_URL = 'https://shopify-proxy-worker.alexsjesus561.workers.dev';
+// Updated Cloudflare Worker Base URL
+const WORKER_BASE_URL = 'https://shopify-proxy-worker.empyrialdwm.workers.dev';
 
 // Get shop information
 export const getShopInfo = async () => {
