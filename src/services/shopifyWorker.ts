@@ -1,9 +1,7 @@
-
 import axios from 'axios';
 
 // Base URL for the Cloudflare Worker
-// You'll need to update this with your actual worker URL after deployment
-const WORKER_BASE_URL = 'https://shopify-proxy-worker.your-worker-subdomain.workers.dev';
+const WORKER_BASE_URL = 'https://shopify-proxy-worker.alexsjesus561.workers.dev';
 
 // Get shop information
 export const getShopInfo = async () => {
