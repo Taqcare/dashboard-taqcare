@@ -1,0 +1,23 @@
+
+{
+  "name": "Taqcare Dashboard",
+  "short_name": "Taqcare",
+  "description": "Administrative dashboard for Taqcare stores",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "/lovable-uploads/8aa46b64-b609-4e7e-9226-4051bf58b4ab.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/lovable-uploads/8aa46b64-b609-4e7e-9226-4051bf58b4ab.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
