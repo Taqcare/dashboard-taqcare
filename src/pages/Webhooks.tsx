@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { RefreshCw } from 'lucide-react';
 import PlatformCard, { PlatformStatus } from '../components/webhooks/PlatformCard';
 import { testConnection } from '../components/webhooks/ConnectionService';
+import ShopifyWorkerTest from '../components/ShopifyWorkerTest';
 
 const Webhooks = () => {
   const [platforms, setPlatforms] = useState<PlatformStatus[]>([
@@ -64,6 +66,9 @@ const Webhooks = () => {
           Refresh Status
         </button>
       </div>
+
+      {/* Shopify Worker Test Component */}
+      <ShopifyWorkerTest />
 
       <div className="grid grid-cols-1 gap-6">
         {platforms.map((platform) => (
