@@ -7,6 +7,7 @@ const ShopifyServerTest = () => {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [shopInfo, setShopInfo] = useState<any>(null);
+  const isProduction = import.meta.env.PROD;
 
   const checkConnection = async () => {
     setStatus('loading');
@@ -50,7 +51,14 @@ const ShopifyServerTest = () => {
         <div className="flex items-center gap-3">
           <span className="font-medium text-gray-700">Store URL:</span>
           <code className="px-2 py-1 bg-gray-100 rounded text-sm">
-            {import.meta.env.VITE_SHOPIFY_STORE_URL}
+            {import.meta.env.VITE_SHOPIFY_STORE_URL || '1d8ac2-1f.myshopify.com'}
+          </code>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <span className="font-medium text-gray-700">Ambiente:</span>
+          <code className="px-2 py-1 bg-gray-100 rounded text-sm">
+            {isProduction ? 'Produção (requisição direta)' : 'Desenvolvimento (via proxy)'}
           </code>
         </div>
 
