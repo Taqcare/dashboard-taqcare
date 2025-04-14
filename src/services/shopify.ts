@@ -123,18 +123,13 @@ const fetchOrdersBatch = async (startDateTime: string, endDateTime: string, last
 
 export const fetchProducts = async (): Promise<ShopifyProduct[]> => {
   try {
-    const response = await shopifyApi.get('/products.json', {
-      params: {
-        limit: 250,
-        fields: 'id,title,variants,image'
-      }
-    });
+    const response = await getProducts(250);
 
-    if (!response.data?.products) {
+    if (!response?.products) {
       return [];
     }
 
-    return response.data.products.map((product: any) => ({
+    return response.products.map((product: any) => ({
       id: product.id,
       title: product.title,
       price: product.variants[0]?.price || '0',
@@ -147,9 +142,7 @@ export const fetchProducts = async (): Promise<ShopifyProduct[]> => {
       }))
     }));
   } catch (error: any) {
-    if (error.response?.status === 401) {
-      throw new Error('Invalid Shopify access token');
-    }
+    console.error('Error fetching products:', error);
     throw error;
   }
 };

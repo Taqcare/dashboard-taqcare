@@ -44,10 +44,17 @@ async function handleShopInfo(request) {
       }
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Shopify API error (${response.status}): ${errorText}`);
+      return corsResponse({ error: `Shopify API error: ${response.status}` }, response.status);
+    }
+
     const data = await response.json();
     
     return corsResponse(data);
   } catch (error) {
+    console.error('Failed to fetch shop info:', error);
     return corsResponse({ error: 'Failed to fetch shop info' }, 500);
   }
 }
@@ -66,10 +73,17 @@ async function handleProducts(request) {
       }
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Shopify API error (${response.status}): ${errorText}`);
+      return corsResponse({ error: `Shopify API error: ${response.status}` }, response.status);
+    }
+
     const data = await response.json();
     
     return corsResponse(data);
   } catch (error) {
+    console.error('Failed to fetch products:', error);
     return corsResponse({ error: 'Failed to fetch products' }, 500);
   }
 }
@@ -93,10 +107,17 @@ async function handleOrders(request) {
       }
     });
 
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`Shopify API error (${response.status}): ${errorText}`);
+      return corsResponse({ error: `Shopify API error: ${response.status}` }, response.status);
+    }
+
     const data = await response.json();
     
     return corsResponse(data);
   } catch (error) {
+    console.error('Failed to fetch orders:', error);
     return corsResponse({ error: 'Failed to fetch orders' }, 500);
   }
 }

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Package, Truck, ChevronDown, Plus, Receipt, Ban as Bank, Search, RefreshCw, Save, ImageOff, Percent } from 'lucide-react';
 import { fetchProducts, fetchShippingRates, type ShopifyProduct, type ShippingRate } from '../services/shopify';
@@ -21,7 +20,6 @@ const CostSettings = () => {
   const [prcTaxesExpanded, setPrcTaxesExpanded] = useState(false);
   const [taxesIofExpanded, setTaxesIofExpanded] = useState(false);
   
-  // Products state
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +29,6 @@ const CostSettings = () => {
     return savedCosts ? JSON.parse(savedCosts) : {};
   });
   
-  // Shipping state
   const [shippingRates, setShippingRates] = useState<ShippingRate[]>([]);
   const [shippingLoading, setShippingLoading] = useState(false);
   const [shippingError, setShippingError] = useState<string | null>(null);
@@ -40,7 +37,6 @@ const CostSettings = () => {
     return savedCosts ? JSON.parse(savedCosts) : {};
   });
   
-  // PRC Taxes state
   const [prcTaxes, setPrcTaxes] = useState<CostItem[]>(() => {
     const savedTaxes = localStorage.getItem(PRC_TAXES_KEY);
     return savedTaxes ? JSON.parse(savedTaxes) : [
@@ -48,7 +44,6 @@ const CostSettings = () => {
     ];
   });
 
-  // Taxes + IOF state
   const [taxesIof, setTaxesIof] = useState<CostItem[]>(() => {
     const savedTaxes = localStorage.getItem(TAXES_IOF_KEY);
     return savedTaxes ? JSON.parse(savedTaxes) : [
@@ -65,7 +60,6 @@ const CostSettings = () => {
       setError(null);
       const fetchedProducts = await fetchProducts();
       
-      // Merge fetched products with saved costs
       const productsWithCosts = fetchedProducts.map(product => ({
         ...product,
         productCost: productCosts[product.id] || 0
@@ -73,7 +67,7 @@ const CostSettings = () => {
       
       setProducts(productsWithCosts);
     } catch (err) {
-      setError('Failed to load products from Shopify');
+      setError('Failed to load products from Shopify Worker');
       console.error('Error loading products:', err);
     } finally {
       setLoading(false);
@@ -156,10 +150,8 @@ const CostSettings = () => {
     try {
       setSaving(true);
       
-      // Save to localStorage
       localStorage.setItem(PRODUCT_COSTS_KEY, JSON.stringify(productCosts));
       
-      // Update products state to reflect the saved cost
       setProducts(prevProducts => 
         prevProducts.map(product => 
           product.id === productId 
@@ -240,7 +232,6 @@ const CostSettings = () => {
     <div className="p-3 md:p-6">
       <h1 className="section-title mb-6">Cost Settings</h1>
       
-      {/* Cost of Goods Section */}
       <div className="bg-white rounded-[10px] shadow-sm mb-4 md:mb-6">
         <button
           className="w-full px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between text-left"
@@ -400,7 +391,6 @@ const CostSettings = () => {
         )}
       </div>
 
-      {/* Shipping Section */}
       <div className="bg-white rounded-[10px] shadow-sm mb-4 md:mb-6">
         <button
           className="w-full px-4 md:px-6 py-4 flex flex-col md:flex-row md:items-center justify-between text-left"
@@ -530,7 +520,6 @@ const CostSettings = () => {
         )}
       </div>
 
-      {/* PRC Taxes Section */}
       <div className="bg-white rounded-[10px] shadow-sm mb-4 md:mb-6">
         <button
           className="w-full px-4 md:px-6 py-4 flex items-center justify-between text-left"
@@ -585,7 +574,6 @@ const CostSettings = () => {
         )}
       </div>
 
-      {/* Taxes + IOF Section */}
       <div className="bg-white rounded-[10px] shadow-sm mb-4 md:mb-6">
         <button
           className="w-full px-4 md:px-6 py-4 flex items-center justify-between text-left"
@@ -624,7 +612,6 @@ const CostSettings = () => {
                     </div>
                   </div>
                   
-                  {/* Example calculation */}
                   <div className="bg-gray-50 p-3 md:p-4 rounded-lg">
                     <h3 className="text-xs md:text-sm font-medium text-gray-700 mb-2">Example Calculation</h3>
                     <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
