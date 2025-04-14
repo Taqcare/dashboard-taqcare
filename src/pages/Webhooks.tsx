@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { RefreshCw } from 'lucide-react';
 import PlatformCard, { PlatformStatus } from '../components/webhooks/PlatformCard';
 import { testConnection } from '../components/webhooks/ConnectionService';
+import ShopifyConnectionTest from '../components/ShopifyConnectionTest';
+import ShopifyServerTest from '../components/webhooks/ShopifyServerTest';
 
 const Webhooks = () => {
   const [platforms, setPlatforms] = useState<PlatformStatus[]>([
@@ -65,6 +67,12 @@ const Webhooks = () => {
           Refresh Status
         </button>
       </div>
+
+      {/* Add the Shopify server test component */}
+      <ShopifyServerTest />
+
+      {/* Original Shopify client-side test */}
+      <ShopifyConnectionTest />
 
       <div className="grid grid-cols-1 gap-6">
         {platforms.map((platform) => (
