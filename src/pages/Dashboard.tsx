@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { DollarSign, TrendingUp, Calculator, Package, Receipt, Truck, Ban as Bank, RefreshCw, Banknote, Store, ShoppingBag, AlertCircle } from 'lucide-react';
 import MetricCard from '../components/MetricCard';
@@ -103,18 +104,17 @@ const Dashboard = () => {
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-8">
         <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-          <h1 className="section-title">Dashboard</h1>
+          <div className="flex items-center space-x-4">
+            <h1 className="section-title">Dashboard</h1>
+            <button 
+              onClick={handleRefresh}
+              className="p-2 rounded-[10px] border border-gray-200 hover:bg-gray-50 transition-colors w-10 h-10 flex items-center justify-center"
+              disabled={isRefreshing}
+            >
+              <RefreshCw className={`h-5 w-5 text-gray-600 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </button>
+          </div>
           <DatePicker value={timeframe} onChange={handleDateChange} />
-        </div>
-
-        <div className="flex justify-end">
-          <button 
-            onClick={handleRefresh}
-            className="p-2 rounded-[10px] border border-gray-200 hover:bg-gray-50 transition-colors w-10 h-10 flex items-center justify-center"
-            disabled={isRefreshing}
-          >
-            <RefreshCw className={`h-5 w-5 text-gray-600 ${isRefreshing ? 'animate-spin' : ''}`} />
-          </button>
         </div>
       </div>
 
