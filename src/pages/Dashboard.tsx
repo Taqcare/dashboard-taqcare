@@ -68,7 +68,6 @@ const Dashboard = () => {
   const { metrics: facebookMetrics, isLoading: facebookLoading, isError: facebookError, mutate: mutateFacebook } = useFacebookMetrics(timeframe);
   const { rate: exchangeRate } = useExchangeRate();
 
-  // Load tax rates from localStorage
   const savedTaxesIof = localStorage.getItem('taxesIof');
   const savedPrcTaxes = localStorage.getItem('prcTaxes');
   const taxesIof = savedTaxesIof ? JSON.parse(savedTaxesIof) : [{ value: 7.23 }];
@@ -90,7 +89,6 @@ const Dashboard = () => {
 
   const appmaxMetrics = calculateAppmaxMetrics(shopifyMetrics);
   
-  // Calculate Net Profit including all costs
   const netProfit = appmaxMetrics.totalRevenue - 
                    (shopifyMetrics?.cogs ?? 0) - 
                    (facebookMetrics?.spend ?? 0) - 
@@ -109,13 +107,15 @@ const Dashboard = () => {
           <DatePicker value={timeframe} onChange={handleDateChange} />
         </div>
 
-        <button 
-          onClick={handleRefresh}
-          className="p-2 rounded-[10px] border border-gray-200 hover:bg-gray-50 transition-colors"
-          disabled={isRefreshing}
-        >
-          <RefreshCw className={`h-5 w-5 text-gray-600 ${isRefreshing ? 'animate-spin' : ''}`} />
-        </button>
+        <div className="flex justify-end">
+          <button 
+            onClick={handleRefresh}
+            className="p-2 rounded-[10px] border border-gray-200 hover:bg-gray-50 transition-colors w-10 h-10 flex items-center justify-center"
+            disabled={isRefreshing}
+          >
+            <RefreshCw className={`h-5 w-5 text-gray-600 ${isRefreshing ? 'animate-spin' : ''}`} />
+          </button>
+        </div>
       </div>
 
       <Section title="Faturamento" icon={DollarSign} columns={3}>
