@@ -20,19 +20,39 @@ export const getShopifyShopInfo = async () => {
     let response;
     
     if (isProduction) {
-      // Em produção, faz requisição direta com o token no header
-      const productionHeaders = {
-        ...headers,
-        'X-Shopify-Access-Token': shopifyAccessToken
-      };
-      
-      response = await fetch(
-        `https://${shopifyStoreUrl}/admin/api/2024-01/shop.json`,
-        { 
-          method: 'GET',
-          headers: productionHeaders
-        }
-      );
+      // Em produção, temos que lidar com CORS de forma diferente
+      // Opção 1: Tentar com mode: 'cors' e headers CORS específicos
+      try {
+        const productionHeaders = {
+          ...headers,
+          'X-Shopify-Access-Token': shopifyAccessToken,
+          'Origin': window.location.origin
+        };
+        
+        response = await fetch(
+          `https://${shopifyStoreUrl}/admin/api/2024-01/shop.json`,
+          { 
+            method: 'GET',
+            headers: productionHeaders,
+            mode: 'cors',
+            credentials: 'omit'
+          }
+        );
+      } catch (corsError) {
+        console.warn('Tentativa CORS falhou, usando o proxy como fallback:', corsError);
+        
+        // Se falhar, tentar com o endpoint relativo que será processado pelo proxy
+        response = await fetch(
+          '/admin/api/2024-01/shop.json',
+          { 
+            method: 'GET',
+            headers: {
+              ...headers,
+              'X-Shopify-Access-Token': shopifyAccessToken
+            }
+          }
+        );
+      }
       
       if (!response.ok) {
         throw new Error(`Erro na resposta: ${response.status} ${response.statusText}`);

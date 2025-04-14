@@ -58,7 +58,7 @@ const ShopifyServerTest = () => {
         <div className="flex items-center gap-3">
           <span className="font-medium text-gray-700">Ambiente:</span>
           <code className="px-2 py-1 bg-gray-100 rounded text-sm">
-            {isProduction ? 'Produção (requisição direta)' : 'Desenvolvimento (via proxy)'}
+            {isProduction ? 'Produção (requisição com fallback para proxy)' : 'Desenvolvimento (via proxy)'}
           </code>
         </div>
 
