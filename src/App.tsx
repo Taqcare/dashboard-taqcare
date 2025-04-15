@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
@@ -10,6 +10,7 @@ import Webhooks from './pages/Webhooks';
 import Employees from './pages/Employees';
 import StoreSelection from './pages/StoreSelection';
 import { Menu, X } from 'lucide-react';
+import { useState } from 'react';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -27,7 +28,6 @@ function App() {
         path="/br/*"
         element={
           <div className="flex flex-col md:flex-row h-screen bg-gray-100">
-            {/* Mobile menu button */}
             <button
               className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-lg shadow"
               onClick={toggleSidebar}
@@ -35,7 +35,6 @@ function App() {
               {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
             
-            {/* Sidebar - hidden on mobile, visible when toggled or on desktop */}
             <div 
               className={`${
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full'
@@ -65,7 +64,6 @@ function App() {
         path="/us/*"
         element={
           <div className="flex flex-col md:flex-row h-screen bg-gray-100">
-            {/* Mobile menu button */}
             <button
               className="md:hidden fixed top-4 left-4 z-50 bg-white p-2 rounded-lg shadow"
               onClick={toggleSidebar}
@@ -73,7 +71,6 @@ function App() {
               {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
             
-            {/* Sidebar - hidden on mobile, visible when toggled or on desktop */}
             <div 
               className={`${
                 sidebarOpen ? 'translate-x-0' : '-translate-x-full'
