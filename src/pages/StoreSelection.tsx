@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const StoreSelection = () => {
+const StoreSelection: React.FC = () => {
   const navigate = useNavigate();
 
   const stores = [
