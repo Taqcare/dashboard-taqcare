@@ -1,7 +1,7 @@
 
 {
-  "name": "Dashboard",
-  "short_name": "Dashboard",
+  "name": "Taqcare Dashboard",
+  "short_name": "Taqcare",
   "description": "Administrative dashboard for Taqcare stores",
   "start_url": "/",
   "display": "standalone",
