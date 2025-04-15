@@ -87,6 +87,9 @@ const Dashboard = () => {
   const roas = facebookMetrics?.spend ? (shopifyMetrics?.paidRevenue ?? 0) / facebookMetrics.spend : 0;
   const cogsUSD = (shopifyMetrics?.cogs ?? 0) / exchangeRate;
   const shippingCostUSD = (shopifyMetrics?.shippingCost ?? 0) / exchangeRate;
+  
+  // Calculando o custo total dos produtos em USD
+  const totalProductCostUSD = (shopifyMetrics?.totalProductCost ?? 0) / exchangeRate;
 
   const appmaxMetrics = calculateAppmaxMetrics(shopifyMetrics);
   
@@ -207,6 +210,16 @@ const Dashboard = () => {
       </Section>
 
       <Section title="Custos" icon={Calculator} columns={4}>
+        <MetricCard
+          title="Total Product Cost"
+          value={shopifyMetrics?.totalProductCost ?? 0}
+          secondaryValue={{
+            value: totalProductCostUSD,
+            currency: 'USD'
+          }}
+          icon={Package}
+          description="Custo total dos produtos vendidos"
+        />
         <MetricCard
           title="COGS"
           value={shopifyMetrics?.cogs ?? 0}

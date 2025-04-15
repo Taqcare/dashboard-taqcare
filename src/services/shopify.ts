@@ -13,6 +13,7 @@ export interface ShopifyMetrics {
   aov: number;
   cogs: number;
   shippingCost: number;
+  totalProductCost: number;
   paymentMethods: {
     pix: number;
     creditCard: number;
@@ -130,7 +131,6 @@ export const fetchProducts = async (): Promise<ShopifyProduct[]> => {
       return [];
     }
     
-    // Get product costs from Supabase
     const { data: costData, error: costError } = await supabase
       .from('product_costs')
       .select('product_id, cost');
@@ -139,7 +139,6 @@ export const fetchProducts = async (): Promise<ShopifyProduct[]> => {
       console.error("Error fetching product costs from Supabase:", costError);
     }
     
-    // Create a map of product costs
     const productCostsMap: Record<number, number> = {};
     if (costData) {
       costData.forEach(item => {
@@ -208,6 +207,17 @@ const calculateOrderCOGS = (order: any, productCosts: Record<number, number>): n
   }, 0);
 };
 
+const calculateTotalProductCost = (order: any, productCosts: Record<number, number>): number => {
+  if (!order.line_items || !Array.isArray(order.line_items)) return 0;
+  
+  return order.line_items.reduce((total: number, item: any) => {
+    const productId = item.product_id;
+    const quantity = parseInt(item.quantity, 10) || 0;
+    const cost = productCosts[productId] || 0;
+    return total + (cost * quantity);
+  }, 0);
+};
+
 const isPixPayment = (order: any): boolean => {
   const gateway = order.gateway?.toLowerCase() || '';
   return gateway.includes('pix') || gateway.includes('pagbank_pix');
@@ -229,7 +239,6 @@ export const fetchShopifyMetrics = async (startDate: string, endDate: string): P
       throw new Error('Start date and end date are required');
     }
 
-    // Load saved tax rates
     const savedTaxesIof = localStorage.getItem('taxesIof');
     const savedPrcTaxes = localStorage.getItem('prcTaxes');
     
@@ -248,7 +257,6 @@ export const fetchShopifyMetrics = async (startDate: string, endDate: string): P
     const startDateTime = format(start, "yyyy-MM-dd'T'HH:mm:ssxxx");
     const endDateTime = format(end, "yyyy-MM-dd'T'HH:mm:ssxxx");
 
-    // Fetch orders using the Cloudflare Worker
     const response = await getOrders({
       created_at_min: startDateTime,
       created_at_max: endDateTime,
@@ -263,7 +271,6 @@ export const fetchShopifyMetrics = async (startDate: string, endDate: string): P
 
     const allOrders = response.orders;
 
-    // Filter orders based on their creation date
     const filteredOrders = allOrders.filter((order: any) => {
       const orderDate = new Date(order.created_at);
       const startDate = new Date(startDateTime);
@@ -274,7 +281,6 @@ export const fetchShopifyMetrics = async (startDate: string, endDate: string): P
 
     const paidOrders = filteredOrders.filter(isPaidOrder);
 
-    // Calculate taxes for all paid orders
     const taxes = paidOrders.reduce((acc, order) => {
       const { orderTax, prcTax } = calculateOrderTaxes(order, taxRate, prcTaxPerOrder);
       return {
@@ -305,6 +311,10 @@ export const fetchShopifyMetrics = async (startDate: string, endDate: string): P
       return sum + calculateOrderCOGS(order, productCosts);
     }, 0);
 
+    const totalProductCost = paidOrders.reduce((sum: number, order: any) => {
+      return sum + calculateTotalProductCost(order, productCosts);
+    }, 0);
+
     const shippingCost = Object.keys(shippingCosts).length > 0 
       ? paidOrders.reduce((sum: number, order: any) => {
           return sum + calculateOrderShippingCost(order, shippingCosts);
@@ -323,6 +333,7 @@ export const fetchShopifyMetrics = async (startDate: string, endDate: string): P
       aov,
       cogs,
       shippingCost,
+      totalProductCost,
       paymentMethods: {
         pix: pixRevenue,
         creditCard: creditCardRevenue
