@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Wallet, 
   Receipt, 
@@ -9,7 +9,8 @@ import {
   Settings,
   Users,
   CheckCircle,
-  XCircle
+  XCircle,
+  LogOut
 } from 'lucide-react';
 import { testWorkerConnection } from '../services/shopifyWorker';
 
@@ -20,13 +21,24 @@ interface PlatformStatus {
 }
 
 interface SidebarProps {
+  store: 'br' | 'us';
   onCloseMobile?: () => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
+const Sidebar: React.FC<SidebarProps> = ({ store, onCloseMobile }) => {
+  const navigate = useNavigate();
   const location = useLocation();
   const [platformStatuses, setPlatformStatuses] = useState<PlatformStatus[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const storeConfig = {
+    br: {
+      name: 'Taqcare BR',
+    },
+    us: {
+      name: 'Taqcare US',
+    }
+  };
 
   const testConnections = async () => {
     try {
@@ -96,17 +108,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
   };
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: `/` },
-    { icon: Wallet, label: 'Wallets', path: `/wallets` },
-    { icon: Receipt, label: 'Transactions', path: `/transactions` },
+    { icon: LayoutDashboard, label: 'Dashboard', path: `/${store}` },
+    { icon: Wallet, label: 'Wallets', path: `/${store}/wallets` },
+    { icon: Receipt, label: 'Transactions', path: `/${store}/transactions` },
     { 
       icon: Webhook, 
       label: 'Webhooks', 
-      path: `/webhooks`,
+      path: `/${store}/webhooks`,
       status: getWebhookStatus()
     },
-    { icon: Users, label: 'Employees', path: `/employees` },
-    { icon: Settings, label: 'Cost Settings', path: `/cost-settings` }
+    { icon: Users, label: 'Employees', path: `/${store}/employees` },
+    { icon: Settings, label: 'Cost Settings', path: `/${store}/cost-settings` }
   ];
 
   const handleNavClick = () => {
@@ -118,13 +130,13 @@ const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
   // Helper function to check if a route is active
   const isRouteActive = (path: string) => {
     // Exact match for dashboard route
-    if (path === `/` && location.pathname === path) {
+    if (path === `/${store}` && location.pathname === path) {
       return true;
     }
     
     // For other routes, check if the current path starts with the menu item path
     // This prevents dashboard from being highlighted when on other pages
-    if (path !== `/`) {
+    if (path !== `/${store}`) {
       return location.pathname.startsWith(path);
     }
     
@@ -139,7 +151,7 @@ const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
           alt="Taqcare Logo"
           className="w-8 h-8 mr-2 object-contain"
         />
-        <span className="text-xl font-bold">Taqcare BR</span>
+        <span className="text-xl font-bold">{storeConfig[store].name}</span>
       </div>
       
       <nav className="space-y-1">
@@ -163,6 +175,17 @@ const Sidebar: React.FC<SidebarProps> = ({ onCloseMobile }) => {
             )}
           </NavLink>
         ))}
+
+        <button
+          onClick={() => {
+            navigate('/');
+            if (onCloseMobile) onCloseMobile();
+          }}
+          className="w-full flex items-center px-4 py-3 mt-4 text-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
+        >
+          <LogOut className="w-5 h-5 mr-3" />
+          <span>Switch Store</span>
+        </button>
       </nav>
     </div>
   );
