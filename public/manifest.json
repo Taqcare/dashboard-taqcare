@@ -1,8 +1,8 @@
 
 {
-  "name": "Dashboard",
-  "short_name": "Dashboard",
-  "description": "Administrative dashboard for Taqcare stores",
+  "name": "Taqcare BR Dashboard",
+  "short_name": "Taqcare BR",
+  "description": "Administrative dashboard for Taqcare BR store",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#111827",
